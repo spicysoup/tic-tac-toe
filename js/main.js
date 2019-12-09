@@ -27,6 +27,30 @@ $(function() {
     ],
 
     activePlayer: 0,
+    axis: function() {
+      return new Array(this.dimension).fill(0);
+    },
+    diagonal1: function(withCoordinates = false) {
+      const axis = this.axis();
+
+      if (withCoordinates) {
+        return axis.map((v, i) => [i, i, this.board[i][i]]);
+      } else {
+        return axis.map((v, i) => this.board[i][i]);
+      }
+    },
+    diagonal2: function(withCoordinates = false) {
+      const axis = this.axis();
+
+      if (withCoordinates) {
+        return axis.map((v, i) => [
+          i,
+          this.dimension - i - 1,
+          this.board[i][this.dimension - i - 1]]);
+      } else {
+        return axis.map((v, i) => this.board[i][this.dimension - i - 1]);
+      }
+    },
 
     /**
      * Returns the "critical paths" - horizontal, vertical and two diagonals - in
@@ -43,27 +67,65 @@ $(function() {
      * @returns {[*[][], *[][], null, null]}
      */
     criticalPaths: function(row, column) {
-      const emptyArray = new Array(game.dimension).fill(0);
+      const axis = this.axis();
 
-      const horizontalPath = emptyArray.map(
+      const horizontalPath = axis.map(
           (v, i) => [row, i, this.board[row][i]]);
 
-      const verticalPath = emptyArray.map(
+      const verticalPath = axis.map(
           (v, i) => [i, column, this.board[i][column]]);
 
-      const diagonalPath1 = row === column ? emptyArray.map(
-          (v, i) => [i, i, this.board[i][i]]) : null;
+      const diagonalPath1 = row === column
+          ? this.diagonal1(true) : null;
 
       const diagonalPath2 = row + column + 1 === this.dimension
-          ? emptyArray.map((v, i) => [
-            i,
-            this.dimension - i - 1,
-            this.board[i][this.dimension - i - 1]])
+          ? this.diagonal2(true)
           : null;
 
       console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
 
       return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
+    },
+
+    isDraw: function() {
+      const axis = this.axis();
+      const nonEmpty = (v) => v !== '';
+      const allSame = (v, i, a) => v === a[0];
+
+      for (let rc = 0; rc < this.dimension; rc++) {
+        if (this.board[rc].filter(nonEmpty).every(allSame)) {
+          return false;
+        }
+        if (axis.map((v, i) => this.board[i][rc]).
+            filter(nonEmpty).every(allSame)) {
+          return false;
+        }
+      }
+      if (this.diagonal1().filter(nonEmpty).every(allSame)) {
+        return false;
+      }
+      if (this.diagonal2().filter(nonEmpty).every(allSame)) {
+        return false;
+      }
+      return true;
+    },
+
+    checkWin: function(row, column) {
+      const criticalPaths = this.criticalPaths(row, column);
+
+      const completePaths = criticalPaths.filter(
+          (p) => p !== null && !(p.map((v) => v[2]).includes('')));
+
+      for (const completePath of completePaths) {
+        for (const player of this.players) {
+          if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
+            console.log(`Player ${player.symbol} won!`);
+            console.log(completePath);
+            return completePath;
+          }
+        }
+      }
+      return null;
     },
   };
 
@@ -87,30 +149,12 @@ $(function() {
     $('.player-b').text(game.players[1].symbol);
   };
 
-  const checkWin = function(row, column) {
-    const criticalPaths = game.criticalPaths(row, column);
-
-    const completePaths = criticalPaths.filter(
-        (p) => p !== null && !(p.map((v) => v[2]).includes('')));
-
-    for (const completePath of completePaths) {
-      for (const player of game.players) {
-        if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
-          console.log(`Player ${player.symbol} won!`);
-          console.log(completePath);
-          return completePath;
-        }
-      }
-    }
-    return null;
-  };
-
   const highlightWinners = function($winner, winningPath) {
     const winner = winningPath[0][2];
     console.log('Winner is:', winner);
 
     winningPath.forEach(([r, c]) => {
-      $(`[data-cell="${r},${c}"]`).addClass("winning-cell");
+      $(`[data-cell="${r},${c}"]`).addClass('winning-cell');
     });
   };
 
@@ -135,11 +179,14 @@ $(function() {
 
       $target.addClass('no-op');
 
-      const winningPath = checkWin(row, column);
+      const winningPath = game.checkWin(row, column);
       console.log('Winner:', winningPath);
       if (winningPath !== null) {
         highlightWinners($target, winningPath);
       } else {
+        if (game.isDraw()) {
+          console.log('There\'s a draw!');
+        }
         swapPlayer();
       }
     }
