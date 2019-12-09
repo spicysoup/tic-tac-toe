@@ -46,7 +46,9 @@ $(function() {
             this.board[i][this.dimension - i - 1]])
           : null;
 
-      console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
+      return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
+
+      // console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
     },
   };
 
@@ -70,6 +72,22 @@ $(function() {
     $('.player-b').text(game.players[1].symbol);
   };
 
+  const checkWin = function(row, column) {
+    const criticalPaths = game.criticalPaths(row, column);
+
+    const completePaths = criticalPaths.filter(
+        (p) => p !== null && !(p.map((v) => v[2]).includes('')));
+
+    completePaths.forEach((completePath) => {
+      game.players.forEach((player) => {
+        if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
+          console.log(`Player ${player.symbol} won!`);
+          return;
+        }
+      });
+    });
+  };
+
   $('.board').click(function(event) {
     const $target = $(event.target);
     let coordinates;
@@ -89,7 +107,8 @@ $(function() {
       // console.log(game.board);
       $target.addClass('no-op');
       swapPlayer();
-      game.criticalPaths(row, column);
+
+      checkWin(row, column);
     }
   });
 
