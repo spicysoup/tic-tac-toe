@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box;
+}
+
+.board {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    width: 50vw;
+    height: 50vh;
+    top: 25vh;
+    left: 25vw;
+    border: 2px solid green;
+    padding: 4px;
+}
+
+.cell {
+    display: inline-block;
+    width: calc(25% - 2px);
+    height: calc(25% - 2px);
+    background-color: teal;
+    border: 1px solid navy;
+    margin: 1px;
+    cursor: pointer;
+}
+
+.cell:hover {
+    opacity: 0.7;
+}
