@@ -28,6 +28,20 @@ $(function() {
 
     activePlayer: 0,
 
+    /**
+     * Returns the "critical paths" - horizontal, vertical and two diagonals - in
+     * the following format:
+     *
+     * [
+     *  [[r, c, symbol], [r, c, symbol], [r, c, symbol], [r, c, symbol]], // Horizontal line
+     *  [[r, c, symbol], [r, c, symbol], [r, c, symbol], [r, c, symbol]], // Vertical line
+     *  [[r, c, symbol], [r, c, symbol], [r, c, symbol], [r, c, symbol]], // Diagonal (r==c)
+     *  [[r, c, symbol], [r, c, symbol], [r, c, symbol], [r, c, symbol]], // Diagonal (r + c + 1 == dimension)
+     * ]
+     * @param row
+     * @param column
+     * @returns {[*[][], *[][], null, null]}
+     */
     criticalPaths: function(row, column) {
       const emptyArray = new Array(game.dimension).fill(0);
 
@@ -39,6 +53,7 @@ $(function() {
 
       const diagonalPath1 = row === column ? emptyArray.map(
           (v, i) => [i, i, this.board[i][i]]) : null;
+
       const diagonalPath2 = row + column + 1 === this.dimension
           ? emptyArray.map((v, i) => [
             i,
@@ -46,9 +61,9 @@ $(function() {
             this.board[i][this.dimension - i - 1]])
           : null;
 
-      return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
+      console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
 
-      // console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
+      return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
     },
   };
 
@@ -78,13 +93,24 @@ $(function() {
     const completePaths = criticalPaths.filter(
         (p) => p !== null && !(p.map((v) => v[2]).includes('')));
 
-    completePaths.forEach((completePath) => {
-      game.players.forEach((player) => {
+    for (const completePath of completePaths) {
+      for (const player of game.players) {
         if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
           console.log(`Player ${player.symbol} won!`);
-          return;
+          console.log(completePath);
+          return completePath;
         }
-      });
+      }
+    }
+    return null;
+  };
+
+  const highlightWinners = function($winner, winningPath) {
+    const winner = winningPath[0][2];
+    console.log('Winner is:', winner);
+
+    winningPath.forEach(([r, c]) => {
+      $(`[data-cell="${r},${c}"]`).addClass("winning-cell");
     });
   };
 
@@ -93,22 +119,29 @@ $(function() {
     let coordinates;
     if ((coordinates = $target.attr('data-cell'))) {
       const [row, column] = coordinates.split(',').map((c) => parseInt(c));
+
       if (game.board[row][column] !== '') {
         return;
       }
-      console.log(coordinates);
+
       $target.css({
         lineHeight: $target.css('height'),
       });
+
       const symbol = game.players[game.activePlayer].symbol;
       $target.text(symbol);
-      console.log(row, column);
-      game.board[row][column] = symbol;
-      // console.log(game.board);
-      $target.addClass('no-op');
-      swapPlayer();
 
-      checkWin(row, column);
+      game.board[row][column] = symbol;
+
+      $target.addClass('no-op');
+
+      const winningPath = checkWin(row, column);
+      console.log('Winner:', winningPath);
+      if (winningPath !== null) {
+        highlightWinners($target, winningPath);
+      } else {
+        swapPlayer();
+      }
     }
   });
 
