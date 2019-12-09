@@ -185,6 +185,7 @@ $(function() {
         highlightWinners($target, winningPath);
       } else {
         if (game.isDraw()) {
+          $('.draw').show();
           console.log('There\'s a draw!');
         }
         swapPlayer();

@@ -68,6 +68,22 @@ body {
     /*left: 20vw;*/
     /*background-color: palegreen;*/
     background-color: lightblue;
+    z-index: 9999;
+}
+
+.draw {
+    display: none;
+    margin: 0 auto;
+    width: 20%;
+    color: #80321B;
+    font-weight: bold;
+    animation: blinker 1s linear 3;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
 }
 
 .player {
