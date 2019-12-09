@@ -8,29 +8,22 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+main {
+    width: 80%;
+    margin: 0 auto;
+}
+
 .board {
     display: flex;
     flex-wrap: wrap;
-    position: absolute;
-    top: calc((100% - 600px) / 2);
-    /*bottom: calc((100% - 600px) / 2);*/
-    left: calc((100% - 600px) / 2);
     height: 600px;
     width: 600px;
-    /*right: calc((100% - 40vw) / 2);*/
-    /*max-height: 40vw;*/
-    /*max-width: 40vw;*/
-    /*min-width: 600px;*/
-    /*width: 800px;*/
-    /*height: 800px;*/
-    /*top: 25vh;*/
-    /*left: 25vw;*/
     border: 2px solid green;
     padding: 4px;
+    margin: 0 auto;
 }
 
 .cell {
-    /*display: inline-block;*/
     width: calc(25% - 2px);
     height: calc(25% - 2px);
     background-color: teal;
@@ -51,29 +44,18 @@ body {
 }
 
 .players-seats {
+    display: flex;
     border: 2px solid darkgreen;
     font-size: 6vh;
-    /*top: calc((100% - 600px) / 2);*/
-    /*bottom: calc((100% - 600px) / 2);*/
-    top: 0.1em;
-    left: calc((100% - 600px) / 2);
     width: 600px;
-
-    /*height: 8vh;*/
-    height: 120px;
-    line-height: 120px;
-    /*width: 60vw;*/
-    /*min-width: 460px;*/
-    position: fixed;
-    /*left: 20vw;*/
-    /*background-color: palegreen;*/
+    margin: 0 auto 60px;
     background-color: lightblue;
     z-index: 9999;
 }
 
 .draw {
     display: none;
-    margin: 0 auto;
+    margin-left: auto;
     width: calc(6vh * 4);
     color: #80321B;
     font-size: 6vh;
@@ -89,22 +71,21 @@ body {
 }
 
 .player {
-    position: absolute;
+    display: inline-block;
     padding-left: 0.2em;
     padding-right: 0.2em;
-    top: 0;
-    bottom: 0;
     cursor: pointer;
 }
 
 .player-a {
-    float: left;
-    left: 0.2em
+    left: 0.2em;
+    margin-left: 20px;
 }
 
 .player-b {
-    float: right;
-    right: 0.2em
+    right: 0.2em;
+    margin-left: auto;
+    margin-right: 20px;
 }
 
 .active-player {
@@ -115,6 +96,5 @@ body {
 
 .winning-cell {
     border: 4px solid darkgoldenrod;
-    /*background-color: maroon;*/
     background-color: #80321B;
 }
