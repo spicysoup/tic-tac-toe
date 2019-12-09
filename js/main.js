@@ -7,7 +7,9 @@ $(function() {
 
   const game = {
     board: [[]],
+
     dimension: 1,
+
     initialise: function(dimension) {
       this.dimension = dimension;
 
@@ -18,11 +20,34 @@ $(function() {
       // this.board = new Array(dimension).fill(new Array(dimension).fill('X'));
       this.board = matrix;
     },
+
     players: [
       new Player('X'),
       new Player('O'),
     ],
+
     activePlayer: 0,
+
+    criticalPaths: function(row, column) {
+      const emptyArray = new Array(game.dimension).fill(0);
+
+      const horizontalPath = emptyArray.map(
+          (v, i) => [row, i, this.board[row][i]]);
+
+      const verticalPath = emptyArray.map(
+          (v, i) => [i, column, this.board[i][column]]);
+
+      const diagonalPath1 = row === column ? emptyArray.map(
+          (v, i) => [i, i, this.board[i][i]]) : null;
+      const diagonalPath2 = row + column + 1 === this.dimension
+          ? emptyArray.map((v, i) => [
+            i,
+            this.dimension - i - 1,
+            this.board[i][this.dimension - i - 1]])
+          : null;
+
+      console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
+    },
   };
 
   const buildBoard = function() {
@@ -55,15 +80,16 @@ $(function() {
       }
       console.log(coordinates);
       $target.css({
-        lineHeight: $target.css('height')
+        lineHeight: $target.css('height'),
       });
       const symbol = game.players[game.activePlayer].symbol;
       $target.text(symbol);
       console.log(row, column);
-      (game.board[row])[column] = symbol;
-      console.log(game.board);
+      game.board[row][column] = symbol;
+      // console.log(game.board);
       $target.addClass('no-op');
       swapPlayer();
+      game.criticalPaths(row, column);
     }
   });
 
