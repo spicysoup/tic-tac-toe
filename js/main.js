@@ -82,7 +82,7 @@ $(function() {
           ? this.diagonal2(true)
           : null;
 
-      console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
+      // console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
 
       return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
     },
@@ -160,6 +160,11 @@ $(function() {
 
   $('.board').click(function(event) {
     const $target = $(event.target);
+
+    if ($target.hasClass('no-op')) {
+      return;
+    }
+
     let coordinates;
     if ((coordinates = $target.attr('data-cell'))) {
       const [row, column] = coordinates.split(',').map((c) => parseInt(c));
@@ -180,12 +185,13 @@ $(function() {
       $target.addClass('no-op');
 
       const winningPath = game.checkWin(row, column);
-      console.log('Winner:', winningPath);
       if (winningPath !== null) {
         highlightWinners($target, winningPath);
+        lockGame(true);
       } else {
         if (game.isDraw()) {
           $('.draw').show();
+          lockGame(true);
           console.log('There\'s a draw!');
         }
         swapPlayer();
@@ -206,8 +212,15 @@ $(function() {
     let $player = $(event.target);
     $player.addClass('active-player');
     game.activePlayer = parseInt($player.attr('data-player-id'));
-    console.log(game.players[game.activePlayer].symbol);
   });
+
+  const lockGame = function(lock) {
+    if (lock) {
+      $('.cell').addClass('no-op');
+    } else {
+      $('.cell').removeClass('no-op');
+    }
+  };
 
   game.initialise(4);
   buildBoard();

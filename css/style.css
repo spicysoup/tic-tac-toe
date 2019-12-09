@@ -74,10 +74,12 @@ body {
 .draw {
     display: none;
     margin: 0 auto;
-    width: 20%;
+    width: calc(6vh * 4);
     color: #80321B;
+    font-size: 6vh;
     font-weight: bold;
     animation: blinker 1s linear 3;
+    text-align: center;
 }
 
 @keyframes blinker {
