@@ -48,9 +48,12 @@ main {
     border: 2px solid darkgreen;
     font-size: 6vh;
     width: 600px;
+    height: 10vh;
     margin: 0 auto 60px;
     background-color: lightblue;
     z-index: 9999;
+    align-items: center;
+    justify-content: center;
 }
 
 .draw {
@@ -62,6 +65,18 @@ main {
     font-weight: bold;
     animation: blinker 1s linear 3;
     text-align: center;
+}
+
+.dimension-control {
+    margin-left: auto;
+    width: calc(6vh * 4);
+    color: #80321B;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+.dimension-control .dimension-button {
+    cursor: pointer;
 }
 
 @keyframes blinker {

@@ -1,5 +1,6 @@
 $(function() {
   const buildBoard = function() {
+    $('.board').empty();
     for (let i = 0; i < game.dimension * game.dimension; i++) {
       const coordinates = `${Math.floor(i / game.dimension)},${i %
       game.dimension}`;
@@ -45,12 +46,13 @@ $(function() {
   };
 
   const resetGame = function() {
-    console.log('Here');
+    // debugger
     game.reset();
     $('.cell').text('');
     $('.cell').removeClass('winning-cell');
     $('.draw').hide();
-    lockGame(false)
+    $('.dimension-control').show();
+    lockGame(false);
   };
 
   $('.board').click(function(event) {
@@ -85,6 +87,7 @@ $(function() {
         lockGame(true);
       } else {
         if (game.isDraw()) {
+          $('.dimension-control').hide();
           $('.draw').show();
           lockGame(true);
           console.log('There\'s a draw!');
@@ -102,6 +105,28 @@ $(function() {
   });
 
   $('.control-panel button').click(resetGame);
+
+  $('.dimension-button').click(function(event) {
+    const $target = $(event.target);
+    if ($target.attr('data-dimension-control') === 'up') {
+      game.dimension++;
+      if (game.dimension === 9) {
+        game.dimension = 3;
+      }
+    } else {
+      game.dimension--;
+      if (game.dimension === 2) {
+        game.dimension = 8;
+      }
+    }
+
+    console.log(game.dimension);
+
+    $('.dimension').text(game.dimension);
+    // resetGame();
+    game.initialise(game.dimension);
+    buildBoard();
+  });
 
   game.initialise(4);
   buildBoard();
