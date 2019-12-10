@@ -16,7 +16,6 @@ const game = {
     for (let i = 0; i < dimension; i++) {
       matrix[i] = new Array(dimension).fill('');
     }
-    // this.board = new Array(dimension).fill(new Array(dimension).fill('X'));
     this.board = matrix;
   },
 
