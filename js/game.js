@@ -81,8 +81,6 @@ const game = {
         ? this.diagonal2(true)
         : null;
 
-    // console.log([horizontalPath, verticalPath, diagonalPath1, diagonalPath2]);
-
     return [horizontalPath, verticalPath, diagonalPath1, diagonalPath2];
   },
 
@@ -118,8 +116,6 @@ const game = {
     for (const completePath of completePaths) {
       for (const player of this.players) {
         if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
-          console.log(`Player ${player.symbol} won!`);
-          console.log(completePath);
           return completePath;
         }
       }

@@ -22,7 +22,6 @@ $(function() {
 
   const highlightWinners = function($winner, winningPath) {
     const winner = winningPath[0][2];
-    console.log('Winner is:', winner);
 
     winningPath.forEach(([r, c]) => {
       $(`[data-cell="${r},${c}"]`).addClass('winning-cell');
@@ -46,7 +45,6 @@ $(function() {
   };
 
   const resetGame = function() {
-    // debugger
     game.reset();
     $('.cell').text('');
     $('.cell').removeClass('winning-cell');
@@ -90,7 +88,6 @@ $(function() {
           $('.dimension-control').hide();
           $('.draw').show();
           lockGame(true);
-          console.log('There\'s a draw!');
         }
         swapPlayer();
       }
@@ -119,8 +116,6 @@ $(function() {
         game.dimension = 8;
       }
     }
-
-    console.log(game.dimension);
 
     $('.dimension').text(game.dimension);
     // resetGame();
