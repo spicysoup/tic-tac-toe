@@ -1,4 +1,7 @@
 $(function() {
+  const DIMENSION_MIN = 3;
+  const DIMENSION_MAX = 8;
+
   const buildBoard = function() {
     $('.board').empty();
     for (let i = 0; i < game.dimension * game.dimension; i++) {
@@ -69,10 +72,12 @@ $(function() {
       }
 
       $target.css({
-        lineHeight: $target.css('height'),
+        'line-height': $target.css('height'),
       });
 
       const symbol = game.players[game.activePlayer].symbol;
+      // console.log($target.width());
+      $target.css('font-size', `${$target.width() - 1}px`)
       $target.text(symbol);
 
       game.board[row][column] = symbol;
@@ -94,6 +99,15 @@ $(function() {
     }
   });
 
+  $(window).on('resize', function() {
+    const $cells = $('.cell');
+    const width = $cells.eq(0).width();
+    $cells.css({
+      'font-size': `${width - 1}px`,
+      'line-height': `${width}px`,
+    })
+  });
+
   $('.player').click(function(event) {
     $('.player').removeClass('active-player');
     let $player = $(event.target);
@@ -107,18 +121,17 @@ $(function() {
     const $target = $(event.target);
     if ($target.attr('data-dimension-control') === 'up') {
       game.dimension++;
-      if (game.dimension === 9) {
-        game.dimension = 3;
+      if (game.dimension > DIMENSION_MAX) {
+        game.dimension = DIMENSION_MIN;
       }
     } else {
       game.dimension--;
-      if (game.dimension === 2) {
-        game.dimension = 8;
+      if (game.dimension < DIMENSION_MIN) {
+        game.dimension = DIMENSION_MAX;
       }
     }
 
     $('.dimension').text(game.dimension);
-    // resetGame();
     game.initialise(game.dimension);
     buildBoard();
   });
