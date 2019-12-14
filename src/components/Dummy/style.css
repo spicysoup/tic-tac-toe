@@ -1,0 +1,8 @@
+div {
+    line-height: 1.6em;
+}
+
+span {
+    display: inline-block;
+    margin-right: 1em;
+}
