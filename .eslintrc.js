@@ -30,5 +30,7 @@ module.exports = {
   ],
   rules: {
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    'react/jsx-one-expression-per-line': 'off',
+    'no-plusplus': 'off',
   },
 };
