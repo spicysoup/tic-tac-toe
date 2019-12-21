@@ -16,7 +16,7 @@ const Board = (props) => {
 
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
-  const highlightBackgroundColor = 'rgba(221, 227, 225, 0.7)';
+  const highlightBackgroundColor = 'rgba(221, 227, 225, 0)';
 
   const coordinatesToCellIndex = (rect, mouseX, mouseY) => {
     const x = Math.floor(mouseX - rect.left - padding); // x position within the element.
@@ -38,6 +38,9 @@ const Board = (props) => {
     );
 
     if (row < 0 || row >= dimension || column < 0 || column >= dimension) {
+      if (document.querySelector('.highlight')) {
+        SVG('.highlight').hide();
+      }
       return;
     }
 
@@ -57,28 +60,24 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
-    // console.log(cell.style, cell.height);
-    // console.log(event.target);
-    // console.log(event.target.parent);
     const cell = event.target;
-    console.log(cell.getBoundingClientRect());
+    const dataIndex = cell.getAttribute('data-index');
+    if (!dataIndex) {
+      return;
+    }
+    const [row, column] = dataIndex.split(',');
     const board = document.querySelector('rect');
-    const { left: cellLeft, top: cellTop } = cell.getBoundingClientRect();
     const { left: boardLeft, top: boardTop } = board.getBoundingClientRect();
-
-    // console.log(left, top);
-    // console.log(event.clientX, event.clientY);
-    // console.log(event.target.x, event.target.y);
-
+    // const { left: cellLeft, top: cellTop } = cell.getBoundingClientRect();
+    const cellLeft = boardLeft + padding + column * columnWidth;
+    const cellTop = boardTop + padding + row * rowHeight;
     const x = Math.floor(cellLeft - boardLeft); // x position within the element.
     const y = Math.floor(cellTop - boardTop);
 
-    // console.log(x, y);
-
     const ctx = document.querySelector('canvas')
       .getContext('2d');
+
     ctx.font = `bold ${rowHeight}px sans-serif`;
-    // ctx.lineHeight = `${rowHeight}px`;
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -87,22 +86,8 @@ const Board = (props) => {
     );
     const offset = (actualBoundingBoxAscent + actualBoundingBoxDescent) / 2
       - actualBoundingBoxDescent;
-    console.log(ctx.measureText('X'));
     ctx
       .fillText('X', x + columnWidth / 2, y + rowHeight / 2 + offset);
-    // if (canvas) {
-    //   console.log("Writing...");
-    //   let simpleText = new Text({
-    //     x: stage.width() / 2,
-    //     y: 15,
-    //     text: 'Simple Text',
-    //     fontSize: 30,
-    //     fontFamily: 'Calibri',
-    //     fill: 'green',
-    //   });
-    //
-    //   canvas.add(simpleText);
-    // }
   };
 
   const drawBoard = useCallback(() => {
@@ -118,6 +103,9 @@ const Board = (props) => {
 
     const width = Math.min(clientWidth, clientHeight) - 60;
     const height = width;
+
+    document.querySelector('#grid').style.left = `${(clientWidth - width) / 2}px`;
+    document.querySelector('#canvas').style.left = `${(clientWidth - width) / 2}px`;
 
     draw = SVG().addTo('#grid').size(width, height);
     draw.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
@@ -148,7 +136,6 @@ const Board = (props) => {
       document.querySelector('svg').addEventListener('click', clickHandler);
     }
 
-    // if ()
     stage = new Stage({
       container: '#canvas',
       width,
