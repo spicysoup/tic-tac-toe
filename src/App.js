@@ -30,7 +30,7 @@ function App() {
           <Dummy />
         </Route>
         <Route path="/board">
-          <Board dimension={3} />
+          <Board dimension={10} />
         </Route>
       </Switch>
     </div>
