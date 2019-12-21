@@ -8,6 +8,8 @@ const Board = (props) => {
   const { dimension } = props;
 
   let draw;
+  let boardLeft;
+  let boardTop;
   let rowHeight;
   let columnWidth;
   let padding;
@@ -66,9 +68,6 @@ const Board = (props) => {
       return;
     }
     const [row, column] = dataIndex.split(',');
-    const board = document.querySelector('rect');
-    const { left: boardLeft, top: boardTop } = board.getBoundingClientRect();
-    // const { left: cellLeft, top: cellTop } = cell.getBoundingClientRect();
     const cellLeft = boardLeft + padding + column * columnWidth;
     const cellTop = boardTop + padding + row * rowHeight;
     const x = Math.floor(cellLeft - boardLeft); // x position within the element.
@@ -78,7 +77,6 @@ const Board = (props) => {
       .getContext('2d');
 
     ctx.font = `bold ${rowHeight}px sans-serif`;
-
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
@@ -108,6 +106,7 @@ const Board = (props) => {
     document.querySelector('#canvas').style.left = `${(clientWidth - width) / 2}px`;
 
     draw = SVG().addTo('#grid').size(width, height);
+    ({ left: boardLeft, top: boardTop } = document.querySelector('svg').getBoundingClientRect());
     draw.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
 
     columnWidth = Math.ceil((width - 40) / dimension);
