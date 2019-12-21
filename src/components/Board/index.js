@@ -1,92 +1,180 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
 import './style.css';
+import { Layer, Stage } from 'konva';
 
 const Board = (props) => {
   const { dimension } = props;
 
-  useEffect(() => {
-    const drawBoard = () => {
-      console.log('Drawing board...');
-      const svg = document.querySelector('svg');
-      if (svg) {
-        svg.remove();
-      }
+  let draw;
+  let rowHeight;
+  let columnWidth;
+  let padding;
+  let stage;
+  let canvas;
 
-      const paper = document.querySelector('.board');
-      const { clientWidth } = paper;
-      const clientHeight = window.innerHeight
-        - document.querySelector('.App-header').clientHeight - 100;
+  const lineColor = 'rgba(27,31,35,.70)';
+  const boardColor = 'rgba(221, 227, 225, 0.3)';
+  const highlightBackgroundColor = 'rgba(221, 227, 225, 0.7)';
 
-      const width = Math.min(clientWidth, clientHeight) - 60;
-      const height = Math.min(clientWidth, clientHeight) - 60;
+  const coordinatesToCellIndex = (rect, mouseX, mouseY) => {
+    const x = Math.floor(mouseX - rect.left - padding); // x position within the element.
+    const y = Math.floor(mouseY - rect.top - padding); // y position within the element.
 
-      const draw = SVG().addTo('.board').size(width, height);
-      draw.rect(width, height).fill('#dde3e1');
+    const row = Math.ceil(y / rowHeight) - 1;
+    const column = Math.ceil(x / columnWidth) - 1;
+    return { row, column };
+  };
 
-      const columnWidth = Math.ceil((width - 40) / dimension);
-      const rowHeight = Math.ceil((height - 40) / dimension);
-      const padding = (width - columnWidth * dimension) / 2;
+  const mouseMoveHandler = (event) => {
+    if (event.target.tagName !== 'rect'
+      || event.target.getAttribute('class') === 'highlight') {
+      return;
+    }
 
-      console.log(columnWidth, rowHeight, padding);
+    const { row, column } = coordinatesToCellIndex(
+      event.target.getBoundingClientRect(), event.clientX, event.clientY,
+    );
 
-      for (let i = 0; i < dimension + 1; i++) {
-        const strokeStyle = {
-          color: 'rgba(27,31,35,.70)',
-          width: (i === 0 || i === dimension) ? 3 : 1,
-          // dasharray: '1,1',
-        };
-        draw.line(padding, rowHeight * i + padding, width - padding, rowHeight * i + padding)
-          .stroke(strokeStyle);
+    if (row < 0 || row >= dimension || column < 0 || column >= dimension) {
+      return;
+    }
 
-        draw.line(columnWidth * i + padding, padding, columnWidth * i + padding, height - padding)
-          .stroke(strokeStyle);
-      }
+    if (!document.querySelector('.highlight')) {
+      draw.rect(rowHeight, columnWidth).addClass('highlight').hide();
+    }
 
-      const mouseMoveHandler = (event) => {
-        if (event.target.tagName !== 'rect' || event.target.getAttribute('class') === 'highlight') {
-          return;
-        }
+    SVG('.highlight')
+      .show()
+      .x(padding + column * columnWidth)
+      .y(padding + row * rowHeight)
+      .stroke({ color: 'red', width: 2 })
+      .fill(highlightBackgroundColor);
 
-        const rect = event.target.getBoundingClientRect();
+    document.querySelector('.highlight')
+      .setAttribute('data-index', `${row},${column}`);
+  };
 
-        const x = Math.floor(event.clientX - rect.left - padding); // x position within the element.
-        const y = Math.floor(event.clientY - rect.top - padding); // y position within the element.
+  const clickHandler = (event) => {
+    // console.log(cell.style, cell.height);
+    // console.log(event.target);
+    // console.log(event.target.parent);
+    const cell = event.target;
+    console.log(cell.getBoundingClientRect());
+    const board = document.querySelector('rect');
+    const { left: cellLeft, top: cellTop } = cell.getBoundingClientRect();
+    const { left: boardLeft, top: boardTop } = board.getBoundingClientRect();
 
-        const row = Math.ceil(y / rowHeight) - 1;
-        const column = Math.ceil(x / columnWidth) - 1;
+    // console.log(left, top);
+    // console.log(event.clientX, event.clientY);
+    // console.log(event.target.x, event.target.y);
 
-        if (row < 0 || row >= dimension || column < 0 || column >= dimension) {
-          return;
-        }
+    const x = Math.floor(cellLeft - boardLeft); // x position within the element.
+    const y = Math.floor(cellTop - boardTop);
 
-        if (!document.querySelector('.highlight')) {
-          draw.rect(rowHeight, columnWidth).addClass('highlight').hide();
-        }
+    // console.log(x, y);
 
-        SVG('.highlight').show()
-          .x(padding + column * columnWidth)
-          .y(padding + row * rowHeight)
-          .stroke({ color: 'red', width: 2 })
-          .fill('transparent');
+    const ctx = document.querySelector('canvas')
+      .getContext('2d');
+    ctx.font = `bold ${rowHeight}px sans-serif`;
+    // ctx.lineHeight = `${rowHeight}px`;
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
+      'X',
+    );
+    const offset = (actualBoundingBoxAscent + actualBoundingBoxDescent) / 2
+      - actualBoundingBoxDescent;
+    console.log(ctx.measureText('X'));
+    ctx
+      .fillText('X', x + columnWidth / 2, y + rowHeight / 2 + offset);
+    // if (canvas) {
+    //   console.log("Writing...");
+    //   let simpleText = new Text({
+    //     x: stage.width() / 2,
+    //     y: 15,
+    //     text: 'Simple Text',
+    //     fontSize: 30,
+    //     fontFamily: 'Calibri',
+    //     fill: 'green',
+    //   });
+    //
+    //   canvas.add(simpleText);
+    // }
+  };
+
+  const drawBoard = useCallback(() => {
+    console.log('Drawing board...');
+    const svg = document.querySelector('svg');
+    if (svg) {
+      svg.remove();
+    }
+
+    const { clientWidth } = document.querySelector('.board');
+    const clientHeight = window.innerHeight
+      - document.querySelector('.App-header').clientHeight - 100;
+
+    const width = Math.min(clientWidth, clientHeight) - 60;
+    const height = width;
+
+    draw = SVG().addTo('#grid').size(width, height);
+    draw.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
+
+    columnWidth = Math.ceil((width - 40) / dimension);
+    rowHeight = Math.ceil((height - 40) / dimension);
+    padding = (width - columnWidth * dimension) / 2;
+
+    console.log(columnWidth, rowHeight, padding);
+
+    for (let i = 0; i < dimension + 1; i++) {
+      const strokeStyle = {
+        color: lineColor,
+        width: (i === 0 || i === dimension) ? 3 : 1,
+        // dasharray: '1,1',
       };
+      draw.line(padding, rowHeight * i + padding, width - padding,
+        rowHeight * i + padding).stroke(strokeStyle);
 
-      if (document.querySelector('svg')) {
-        document.querySelector('svg').addEventListener('mousemove', mouseMoveHandler);
-      }
-    };
+      draw.line(columnWidth * i + padding, padding, columnWidth * i + padding,
+        height - padding).stroke(strokeStyle);
+    }
 
-    let handle = setTimeout(drawBoard, 500);
+    if (document.querySelector('svg')) {
+      document.querySelector('svg')
+        .addEventListener('mousemove', mouseMoveHandler);
+
+      document.querySelector('svg').addEventListener('click', clickHandler);
+    }
+
+    // if ()
+    stage = new Stage({
+      container: '#canvas',
+      width,
+      height,
+    });
+
+    if (document.querySelector('canvas')) {
+      document.querySelector('canvas').remove();
+    }
+    canvas = new Layer();
+    stage.add(canvas);
+  }, [dimension]);
+
+  useEffect(() => {
+    let handle = setTimeout(drawBoard, 0);
     window.addEventListener('resize', () => {
       clearTimeout(handle);
       handle = setTimeout(drawBoard, 500);
     });
-  }, [dimension]);
+  }, [drawBoard]);
 
   return (
     <div className="board">
       <h1>Test Board of {dimension} x {dimension}</h1>
+      <div id="canvas" />
+      <div id="grid" />
     </div>
   );
 };
