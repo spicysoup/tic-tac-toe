@@ -10,11 +10,11 @@
 /*    position: absolute;*/
 /*}*/
 
-#canvas, #grid {
+#canvas-container, #grid {
     position: absolute;
 }
 
-#canvas {
+#canvas-container {
     /*z-index: 9999;*/
 }
 
