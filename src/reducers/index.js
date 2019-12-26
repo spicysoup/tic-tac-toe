@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { DUMMY, SETUP } from 'actions/types';
+import game from 'reducers/game';
 
 const dummies = (state = [], action) => {
   switch (action.type) {
@@ -26,4 +27,4 @@ const setup = (state = {}, action) => {
   }
 };
 
-export default combineReducers({ dummies, setup });
+export default combineReducers({ dummies, setup, game });

@@ -1,26 +1,25 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
 import './style.css';
 import { Layer, Stage } from 'konva';
+import * as actionCreators from 'actions';
 
 const Board = (props) => {
   const { dimension } = props;
 
-  let draw;
-  let boardLeft;
-  let boardTop;
-  let rowHeight;
-  let columnWidth;
-  let padding;
-  let stage;
-  let canvas;
-
+  const boardDataRef = useRef({});
+  
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
   const highlightBackgroundColor = 'rgba(221, 227, 225, 0)';
 
   const coordinatesToCellIndex = (rect, mouseX, mouseY) => {
+    const {
+      columnWidth, rowHeight, padding,
+    } = boardDataRef.current;
+
     const x = Math.floor(mouseX - rect.left - padding); // x position within the element.
     const y = Math.floor(mouseY - rect.top - padding); // y position within the element.
 
@@ -34,6 +33,10 @@ const Board = (props) => {
       || event.target.getAttribute('class') === 'highlight') {
       return;
     }
+
+    const {
+      draw, columnWidth, rowHeight, padding,
+    } = boardDataRef.current;
 
     const { row, column } = coordinatesToCellIndex(
       event.target.getBoundingClientRect(), event.clientX, event.clientY,
@@ -67,11 +70,14 @@ const Board = (props) => {
     if (!dataIndex) {
       return;
     }
+    const {
+      left, top, padding, columnWidth, rowHeight,
+    } = boardDataRef.current;
     const [row, column] = dataIndex.split(',');
-    const cellLeft = boardLeft + padding + column * columnWidth;
-    const cellTop = boardTop + padding + row * rowHeight;
-    const x = Math.floor(cellLeft - boardLeft); // x position within the element.
-    const y = Math.floor(cellTop - boardTop);
+    const cellLeft = left + padding + column * columnWidth;
+    const cellTop = top + padding + row * rowHeight;
+    const x = Math.floor(cellLeft - left); // x position within the element.
+    const y = Math.floor(cellTop - top);
 
     const ctx = document.querySelector('canvas')
       .getContext('2d');
@@ -79,16 +85,22 @@ const Board = (props) => {
     ctx.font = `bold ${rowHeight}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    const { nextPlayer: symbol } = props;
     const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
-      'X',
+      symbol,
     );
     const offset = (actualBoundingBoxAscent + actualBoundingBoxDescent) / 2
       - actualBoundingBoxDescent;
     ctx
-      .fillText('X', x + columnWidth / 2, y + rowHeight / 2 + offset);
+      .fillText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
+
+    const { newMove } = props;
+    newMove([row, column, symbol]);
   };
 
   const drawBoard = useCallback(() => {
+    clearTimeout(boardDataRef.current.timeoutHandle);
+
     console.log('Drawing board...');
     const svg = document.querySelector('svg');
     if (svg) {
@@ -105,15 +117,13 @@ const Board = (props) => {
     document.querySelector('#grid').style.left = `${(clientWidth - width) / 2}px`;
     document.querySelector('#canvas').style.left = `${(clientWidth - width) / 2}px`;
 
-    draw = SVG().addTo('#grid').size(width, height);
-    ({ left: boardLeft, top: boardTop } = document.querySelector('svg').getBoundingClientRect());
+    const draw = SVG().addTo('#grid').size(width, height);
+    const { left, top } = document.querySelector('svg').getBoundingClientRect();
     draw.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
 
-    columnWidth = Math.ceil((width - 40) / dimension);
-    rowHeight = Math.ceil((height - 40) / dimension);
-    padding = (width - columnWidth * dimension) / 2;
-
-    console.log(columnWidth, rowHeight, padding);
+    const columnWidth = Math.ceil((width - 40) / dimension);
+    const rowHeight = Math.ceil((height - 40) / dimension);
+    const padding = (width - columnWidth * dimension) / 2;
 
     for (let i = 0; i < dimension + 1; i++) {
       const strokeStyle = {
@@ -128,14 +138,7 @@ const Board = (props) => {
         height - padding).stroke(strokeStyle);
     }
 
-    if (document.querySelector('svg')) {
-      document.querySelector('svg')
-        .addEventListener('mousemove', mouseMoveHandler);
-
-      document.querySelector('svg').addEventListener('click', clickHandler);
-    }
-
-    stage = new Stage({
+    const stage = new Stage({
       container: '#canvas',
       width,
       height,
@@ -144,15 +147,19 @@ const Board = (props) => {
     if (document.querySelector('canvas')) {
       document.querySelector('canvas').remove();
     }
-    canvas = new Layer();
+    const canvas = new Layer();
     stage.add(canvas);
+
+    boardDataRef.current = {
+      stage, canvas, draw, left, top, columnWidth, rowHeight, padding,
+    };
   }, [dimension]);
 
   useEffect(() => {
-    let handle = setTimeout(drawBoard, 0);
+    boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 0);
     window.addEventListener('resize', () => {
-      clearTimeout(handle);
-      handle = setTimeout(drawBoard, 500);
+      clearTimeout(boardDataRef.current.timeoutHandle);
+      boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 500);
     });
   }, [drawBoard]);
 
@@ -160,13 +167,21 @@ const Board = (props) => {
     <div className="board">
       <h1>Test Board of {dimension} x {dimension}</h1>
       <div id="canvas" />
-      <div id="grid" />
+      {/* eslint-disable-next-line max-len */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
+      <div id="grid" onClick={clickHandler} onMouseMove={mouseMoveHandler} />
     </div>
   );
 };
 
 Board.propTypes = {
   dimension: PropTypes.number.isRequired,
+  newMove: PropTypes.func.isRequired,
+  nextPlayer: PropTypes.string.isRequired,
 };
 
-export default Board;
+const mapStateToProps = (state) => ({
+  nextPlayer: state.game.nextPlayer,
+});
+
+export default connect(mapStateToProps, actionCreators)(Board);

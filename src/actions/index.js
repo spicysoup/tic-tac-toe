@@ -1,4 +1,4 @@
-import { DUMMY } from './types';
+import { DUMMY, GAME } from './types';
 
 export const saveDummy = (dummy) => ({
   type: DUMMY.SAVE_DUMMY,
@@ -12,4 +12,9 @@ export const deleteDummy = (dummyId) => ({
 
 export const retrieveDummies = () => ({
   type: DUMMY.LOAD_DUMMIES,
+});
+
+export const newMove = (move) => ({
+  type: GAME.NEW_MOVE,
+  move,
 });

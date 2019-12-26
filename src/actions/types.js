@@ -9,3 +9,7 @@ export const SETUP = {
   CHOOSE_NAME: 'CHOOSE_NAME',
   RESET: 'RESET',
 };
+
+export const GAME = {
+  NEW_MOVE: 'NEW_MOVE',
+};
