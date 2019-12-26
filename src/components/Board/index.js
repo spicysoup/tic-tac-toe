@@ -10,6 +10,8 @@ const Board = (props) => {
   const { dimension } = props;
 
   const boardDataRef = useRef({});
+  const gridElement = useRef(null);
+  const canvasContainerElement = useRef(null);
 
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
@@ -65,16 +67,11 @@ const Board = (props) => {
       .setAttribute('data-index', `${row},${column}`);
   };
 
-  const clickHandler = (event) => {
-    const cell = event.target;
-    const dataIndex = cell.getAttribute('data-index');
-    if (!dataIndex) {
-      return;
-    }
+  const drawSymbolInCell = (column, row, symbol) => {
     const {
       left, top, padding, columnWidth, rowHeight,
     } = boardDataRef.current;
-    const [row, column] = dataIndex.split(',');
+
     const cellLeft = left + padding + column * columnWidth;
     const cellTop = top + padding + row * rowHeight;
     const x = Math.floor(cellLeft - left); // x position within the element.
@@ -86,7 +83,6 @@ const Board = (props) => {
     ctx.font = `bold ${rowHeight}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const { nextPlayer: symbol } = props;
     const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
       symbol,
     );
@@ -94,6 +90,19 @@ const Board = (props) => {
       - actualBoundingBoxDescent;
     ctx
       .fillText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
+  };
+
+  const clickHandler = (event) => {
+    const cell = event.target;
+    const dataIndex = cell.getAttribute('data-index');
+    if (!dataIndex) {
+      return;
+    }
+
+    const [row, column] = dataIndex.split(',');
+    const { nextPlayer: symbol } = props;
+
+    drawSymbolInCell(column, row, symbol);
 
     const { newMove } = props;
     newMove([row, column, symbol]);
@@ -119,10 +128,8 @@ const Board = (props) => {
     banner.style.width = `${width}px`;
     banner.style.fontSize = `${Math.floor(width / 15)}px`;
 
-    document.querySelector('#grid').style.left = `${(clientWidth - width)
-    / 2}px`;
-    document.querySelector('#canvas').style.left = `${(clientWidth - width)
-    / 2}px`;
+    gridElement.current.style.left = `${(clientWidth - width) / 2}px`;
+    canvasContainerElement.current.style.left = `${(clientWidth - width) / 2}px`;
 
     const draw = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
@@ -146,7 +153,7 @@ const Board = (props) => {
     }
 
     const stage = new Stage({
-      container: '#canvas',
+      container: '#canvas-container',
       width,
       height,
     });
@@ -176,10 +183,15 @@ const Board = (props) => {
         <div>X</div>
         <div>O</div>
       </div>
-      <div id="canvas" />
+      <div ref={canvasContainerElement} id="canvas-container" />
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
-      <div id="grid" onClick={clickHandler} onMouseMove={mouseMoveHandler} />
+      <div
+        ref={gridElement}
+        id="grid"
+        onClick={clickHandler}
+        onMouseMove={mouseMoveHandler}
+      />
     </div>
   );
 };
