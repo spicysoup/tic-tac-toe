@@ -10,18 +10,18 @@ const Board = (props) => {
   const { dimension } = props;
 
   const boardDataRef = useRef({});
-  
+
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
   const highlightBackgroundColor = 'rgba(221, 227, 225, 0)';
 
-  const coordinatesToCellIndex = (rect, mouseX, mouseY) => {
+  const coordinatesToCellIndex = (mouseX, mouseY) => {
     const {
-      columnWidth, rowHeight, padding,
+      columnWidth, rowHeight, padding, left, top,
     } = boardDataRef.current;
 
-    const x = Math.floor(mouseX - rect.left - padding); // x position within the element.
-    const y = Math.floor(mouseY - rect.top - padding); // y position within the element.
+    const x = Math.floor(mouseX - left - padding); // x position within the board boundary.
+    const y = Math.floor(mouseY - top - padding); // y position within the board boundary.
 
     const row = Math.ceil(y / rowHeight) - 1;
     const column = Math.ceil(x / columnWidth) - 1;
@@ -39,7 +39,8 @@ const Board = (props) => {
     } = boardDataRef.current;
 
     const { row, column } = coordinatesToCellIndex(
-      event.target.getBoundingClientRect(), event.clientX, event.clientY,
+      event.clientX,
+      event.clientY,
     );
 
     if (row < 0 || row >= dimension || column < 0 || column >= dimension) {
@@ -114,8 +115,14 @@ const Board = (props) => {
     const width = Math.min(clientWidth, clientHeight) - 60;
     const height = width;
 
-    document.querySelector('#grid').style.left = `${(clientWidth - width) / 2}px`;
-    document.querySelector('#canvas').style.left = `${(clientWidth - width) / 2}px`;
+    const banner = document.querySelector('.banner');
+    banner.style.width = `${width}px`;
+    banner.style.fontSize = `${Math.floor(width / 15)}px`;
+
+    document.querySelector('#grid').style.left = `${(clientWidth - width)
+    / 2}px`;
+    document.querySelector('#canvas').style.left = `${(clientWidth - width)
+    / 2}px`;
 
     const draw = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
@@ -165,7 +172,10 @@ const Board = (props) => {
 
   return (
     <div className="board">
-      <h1>Test Board of {dimension} x {dimension}</h1>
+      <div className="banner">
+        <div>X</div>
+        <div>O</div>
+      </div>
       <div id="canvas" />
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
