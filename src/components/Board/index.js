@@ -22,9 +22,9 @@ Banner.propTypes = {
 };
 
 const Board = (props) => {
-  const { dimension } = props;
+  const { dimension, matrix } = props;
 
-  const boardDataRef = useRef({});
+  const boardDataRef = useRef({ matrix });
   const gridElement = useRef(null);
   const canvasContainerElement = useRef(null);
 
@@ -82,7 +82,7 @@ const Board = (props) => {
       .setAttribute('data-index', `${row},${column}`);
   };
 
-  const drawSymbolInCell = (column, row, symbol) => {
+  const drawSymbolInCell = (row, column, symbol) => {
     const {
       left, top, padding, columnWidth, rowHeight,
     } = boardDataRef.current;
@@ -115,18 +115,28 @@ const Board = (props) => {
     }
 
     const [row, column] = dataIndex.split(',');
-    const { matrix } = props;
+    // const { matrix } = props;
     if (matrix[row][column] !== '') {
       return;
     }
 
     const { nextPlayer: symbol } = props;
 
-    drawSymbolInCell(column, row, symbol);
+    drawSymbolInCell(row, column, symbol);
 
     const { newMove } = props;
     newMove([row, column, symbol]);
   };
+
+  const refillBoard = useCallback(() => {
+    boardDataRef.current.matrix.forEach((row, r) => {
+      row.forEach((column, c) => {
+        if (column !== '') {
+          drawSymbolInCell(r, c, column);
+        }
+      });
+    });
+  }, []);
 
   const drawBoard = useCallback(() => {
     clearTimeout(boardDataRef.current.timeoutHandle);
@@ -186,9 +196,11 @@ const Board = (props) => {
     stage.add(canvas);
 
     boardDataRef.current = {
-      stage, canvas, draw, left, top, columnWidth, rowHeight, padding,
+      ...boardDataRef.current, stage, canvas, draw, left, top, columnWidth, rowHeight, padding,
     };
-  }, [dimension]);
+
+    refillBoard();
+  }, [dimension, refillBoard]);
 
   useEffect(() => {
     boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 0);
