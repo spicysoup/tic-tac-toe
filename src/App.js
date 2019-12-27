@@ -4,8 +4,11 @@ import Dummy from 'components/Dummy';
 import Board from 'components/Board';
 import logo from './logo.svg';
 import './App.css';
+import * as PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-function App() {
+function App(props) {
+  const { dimension } = props;
   return (
     <div className="App">
       <header className="App-header">
@@ -30,11 +33,19 @@ function App() {
           <Dummy />
         </Route>
         <Route path="/board">
-          <Board dimension={10} />
+          <Board dimension={dimension} />
         </Route>
       </Switch>
     </div>
   );
 }
 
-export default App;
+App.propTypes = {
+  dimension: PropTypes.number.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  dimension: state.game.dimension,
+});
+
+export default connect(mapStateToProps, null)(App);
