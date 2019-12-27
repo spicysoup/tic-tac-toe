@@ -6,6 +6,21 @@ import './style.css';
 import { Layer, Stage } from 'konva';
 import * as actionCreators from 'actions';
 
+const Banner = (props) => {
+  const { players, nextPlayer } = props;
+  return (
+    <div className="banner">
+      <div className={players[0] === nextPlayer ? 'active-player' : ''}>{players[0]}</div>
+      <div className={players[1] === nextPlayer ? 'active-player' : ''}>{players[1]}</div>
+    </div>
+  );
+};
+
+Banner.propTypes = {
+  nextPlayer: PropTypes.string.isRequired,
+  players: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
 const Board = (props) => {
   const { dimension } = props;
 
@@ -129,7 +144,8 @@ const Board = (props) => {
     banner.style.fontSize = `${Math.floor(width / 15)}px`;
 
     gridElement.current.style.left = `${(clientWidth - width) / 2}px`;
-    canvasContainerElement.current.style.left = `${(clientWidth - width) / 2}px`;
+    canvasContainerElement.current.style.left = `${(clientWidth - width)
+    / 2}px`;
 
     const draw = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
@@ -177,12 +193,10 @@ const Board = (props) => {
     });
   }, [drawBoard]);
 
+  const { players, nextPlayer } = props;
   return (
     <div className="board">
-      <div className="banner">
-        <div>X</div>
-        <div>O</div>
-      </div>
+      <Banner players={players} nextPlayer={nextPlayer} />
       <div ref={canvasContainerElement} id="canvas-container" />
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
@@ -200,10 +214,12 @@ Board.propTypes = {
   dimension: PropTypes.number.isRequired,
   newMove: PropTypes.func.isRequired,
   nextPlayer: PropTypes.string.isRequired,
+  players: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   nextPlayer: state.game.nextPlayer,
+  players: state.game.players,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);
