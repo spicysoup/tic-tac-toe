@@ -115,6 +115,11 @@ const Board = (props) => {
     }
 
     const [row, column] = dataIndex.split(',');
+    const { matrix } = props;
+    if (matrix[row][column] !== '') {
+      return;
+    }
+
     const { nextPlayer: symbol } = props;
 
     drawSymbolInCell(column, row, symbol);
@@ -215,11 +220,13 @@ Board.propTypes = {
   newMove: PropTypes.func.isRequired,
   nextPlayer: PropTypes.string.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
+  matrix: PropTypes.arrayOf(PropTypes.array).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   nextPlayer: state.game.nextPlayer,
   players: state.game.players,
+  matrix: state.game.matrix,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);
