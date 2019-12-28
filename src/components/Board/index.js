@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
@@ -33,7 +35,7 @@ Banner.propTypes = {
 };
 
 const Board = (props) => {
-  const { dimension, matrix } = props;
+  const { dimension, matrix, sessionNumber } = props;
 
   const boardDataRef = useRef({ matrix });
   const gridElement = useRef(null);
@@ -174,6 +176,7 @@ const Board = (props) => {
     boardDataRef.current.matrix.forEach((row, r) => {
       row.forEach((column, c) => {
         if (column !== '') {
+          console.log('About to refill cell');
           drawSymbolInCell(r, c, column);
         }
       });
@@ -191,7 +194,7 @@ const Board = (props) => {
 
     const { clientWidth } = document.querySelector('.board');
     const clientHeight = window.innerHeight
-      - document.querySelector('.App-header').clientHeight - 100;
+      - document.querySelector('.App-header').clientHeight - 120;
 
     const width = Math.min(clientWidth, clientHeight) - 60;
     const height = width;
@@ -212,8 +215,8 @@ const Board = (props) => {
       'stroke-width': 6,
     });
 
-    const columnWidth = Math.ceil((width - 40) / dimension);
-    const rowHeight = Math.ceil((height - 40) / dimension);
+    const columnWidth = Math.ceil((width - 20) / dimension);
+    const rowHeight = Math.ceil((height - 20) / dimension);
     const padding = (width - columnWidth * dimension) / 2;
 
     for (let i = 0; i < dimension + 1; i++) {
@@ -264,11 +267,18 @@ const Board = (props) => {
     });
   }, [drawBoard]);
 
+  useEffect(() => {
+    console.log(`Session number is: ${sessionNumber}`);
+    setDraw(false);
+    setWon(false);
+    drawBoard();
+  }, [sessionNumber, drawBoard]);
+
   const { players, nextPlayer } = props;
   return (
     <div className="board">
-      <Banner players={players} nextPlayer={nextPlayer} draw={draw}/>
-      <div ref={canvasContainerElement} id="canvas-container"/>
+      <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
+      <div ref={canvasContainerElement} id="canvas-container" />
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
       <div
@@ -288,12 +298,14 @@ Board.propTypes = {
   nextPlayer: PropTypes.string.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
   matrix: PropTypes.arrayOf(PropTypes.array).isRequired,
+  sessionNumber: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   nextPlayer: state.game.nextPlayer,
   players: state.game.players,
   matrix: state.game.matrix,
+  sessionNumber: state.game.sessionNumber,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);

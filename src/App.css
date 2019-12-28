@@ -13,6 +13,16 @@
     }
 }
 
+header img+p {
+    margin: 0.5em;
+    font-size: 1.2em;
+}
+
+header a, header div {
+    padding: 1em;
+    cursor: pointer;
+}
+
 .App-header {
     background-color: #282c34;
     min-height: 20vh;
@@ -25,8 +35,11 @@
 }
 
 .App-link {
-    color: #61dafb;
+    /*color: #61dafb;*/
+    display: inline;
+    color: white;
     font-size: 0.7em;
+    text-decoration: underline;
 }
 
 @keyframes App-logo-spin {
@@ -49,7 +62,7 @@ button {
     border-radius: 6px;
 }
 
-button a {
+a {
     color: white;
     text-decoration: none;
 }
