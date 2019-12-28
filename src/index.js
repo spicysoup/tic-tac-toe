@@ -6,6 +6,7 @@ import createSagaMiddleware from 'redux-saga';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import rootSaga from 'sagas';
+import gameMiddleware from 'middlewares/game';
 import 'index.css';
 import App from 'App';
 import reducers from 'reducers';
@@ -15,7 +16,7 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(
   reducers,
-  compose(applyMiddleware(sagaMiddleware),
+  compose(applyMiddleware(sagaMiddleware, gameMiddleware),
     // eslint-disable-next-line no-underscore-dangle
     window.__REDUX_DEVTOOLS_EXTENSION__
     // eslint-disable-next-line no-underscore-dangle

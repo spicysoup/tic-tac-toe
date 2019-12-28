@@ -48,3 +48,28 @@
     /*margin-right: 0.5em;*/
     border-left: 2px solid rgba(27,31,35,.70);
 }
+
+.draw {
+    display: none;
+    /*margin-left: auto;*/
+    width: calc(1em * 4);
+    color: #80321B;
+    font-size: 1em;
+    font-weight: bold;
+    animation: blinker 1s linear 3;
+    text-align: center;
+}
+
+.draw.active {
+    display: block;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.locked {
+    cursor: not-allowed;
+}
