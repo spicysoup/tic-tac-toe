@@ -1,17 +1,29 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
 import './style.css';
 import { Layer, Stage } from 'konva';
 import * as actionCreators from 'actions';
+import { isDraw } from 'libs/gameKeeper';
 
 const Banner = (props) => {
-  const { players, nextPlayer } = props;
+  const { players, nextPlayer, draw } = props;
   return (
     <div className="banner">
-      <div className={players[0] === nextPlayer ? 'active-player' : ''}>{players[0]}</div>
-      <div className={players[1] === nextPlayer ? 'active-player' : ''}>{players[1]}</div>
+      <div className={players[0] === nextPlayer
+        ? 'active-player'
+        : ''}
+      >{players[0]}
+      </div>
+      <div className={draw ? 'draw active' : 'draw'}>DRAW</div>
+      <div className={players[1] === nextPlayer
+        ? 'active-player'
+        : ''}
+      >{players[1]}
+      </div>
     </div>
   );
 };
@@ -19,6 +31,7 @@ const Banner = (props) => {
 Banner.propTypes = {
   nextPlayer: PropTypes.string.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
+  draw: PropTypes.bool.isRequired,
 };
 
 const Board = (props) => {
@@ -27,6 +40,7 @@ const Board = (props) => {
   const boardDataRef = useRef({ matrix });
   const gridElement = useRef(null);
   const canvasContainerElement = useRef(null);
+  const [draw, setDraw] = useState(false);
 
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
@@ -52,7 +66,7 @@ const Board = (props) => {
     }
 
     const {
-      draw, columnWidth, rowHeight, padding,
+      svg, columnWidth, rowHeight, padding,
     } = boardDataRef.current;
 
     const { row, column } = coordinatesToCellIndex(
@@ -68,7 +82,7 @@ const Board = (props) => {
     }
 
     if (!document.querySelector('.highlight')) {
-      draw.rect(rowHeight, columnWidth).addClass('highlight').hide();
+      svg.rect(rowHeight, columnWidth).addClass('highlight').hide();
     }
 
     SVG('.highlight')
@@ -108,6 +122,10 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
+    if (draw) {
+      return;
+    }
+
     const cell = event.target;
     const dataIndex = cell.getAttribute('data-index');
     if (!dataIndex) {
@@ -126,6 +144,11 @@ const Board = (props) => {
 
     const { newMove } = props;
     newMove([row, column, symbol]);
+
+    // const matrix1 = getMatrix();
+    // console.log(matrix1[row][column]);
+
+    setDraw(isDraw());
   };
 
   const refillBoard = useCallback(() => {
@@ -142,7 +165,7 @@ const Board = (props) => {
     clearTimeout(boardDataRef.current.timeoutHandle);
 
     console.log('Drawing board...');
-    const svg = document.querySelector('svg');
+    let svg = document.querySelector('svg');
     if (svg) {
       svg.remove();
     }
@@ -162,9 +185,9 @@ const Board = (props) => {
     canvasContainerElement.current.style.left = `${(clientWidth - width)
     / 2}px`;
 
-    const draw = SVG().addTo('#grid').size(width, height);
+    svg = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
-    draw.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
+    svg.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
 
     const columnWidth = Math.ceil((width - 40) / dimension);
     const rowHeight = Math.ceil((height - 40) / dimension);
@@ -176,10 +199,10 @@ const Board = (props) => {
         width: (i === 0 || i === dimension) ? 3 : 1,
         // dasharray: '1,1',
       };
-      draw.line(padding, rowHeight * i + padding, width - padding,
+      svg.line(padding, rowHeight * i + padding, width - padding,
         rowHeight * i + padding).stroke(strokeStyle);
 
-      draw.line(columnWidth * i + padding, padding, columnWidth * i + padding,
+      svg.line(columnWidth * i + padding, padding, columnWidth * i + padding,
         height - padding).stroke(strokeStyle);
     }
 
@@ -196,7 +219,15 @@ const Board = (props) => {
     stage.add(canvas);
 
     boardDataRef.current = {
-      ...boardDataRef.current, stage, canvas, draw, left, top, columnWidth, rowHeight, padding,
+      ...boardDataRef.current,
+      stage,
+      canvas,
+      svg,
+      left,
+      top,
+      columnWidth,
+      rowHeight,
+      padding,
     };
 
     refillBoard();
@@ -213,12 +244,13 @@ const Board = (props) => {
   const { players, nextPlayer } = props;
   return (
     <div className="board">
-      <Banner players={players} nextPlayer={nextPlayer} />
+      <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
       <div ref={canvasContainerElement} id="canvas-container" />
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
       <div
         ref={gridElement}
+        className={draw ? 'locked' : ''}
         id="grid"
         onClick={clickHandler}
         onMouseMove={mouseMoveHandler}
