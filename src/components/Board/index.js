@@ -1,13 +1,11 @@
-import React, {
-  useCallback, useEffect, useRef, useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
 import './style.css';
 import { Layer, Stage } from 'konva';
 import * as actionCreators from 'actions';
-import { isDraw } from 'libs/gameKeeper';
+import { checkWin, isDraw } from 'libs/gameKeeper';
 
 const Banner = (props) => {
   const { players, nextPlayer, draw } = props;
@@ -41,10 +39,13 @@ const Board = (props) => {
   const gridElement = useRef(null);
   const canvasContainerElement = useRef(null);
   const [draw, setDraw] = useState(false);
+  const [won, setWon] = useState(false);
 
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
   const highlightBackgroundColor = 'rgba(221, 227, 225, 0)';
+  const winningColor = 'gold';
+  const winningStrokeColor = '#80321B';
 
   const coordinatesToCellIndex = (mouseX, mouseY) => {
     const {
@@ -96,7 +97,7 @@ const Board = (props) => {
       .setAttribute('data-index', `${row},${column}`);
   };
 
-  const drawSymbolInCell = (row, column, symbol) => {
+  const drawSymbolInCell = (row, column, symbol, color, strokeColor) => {
     const {
       left, top, padding, columnWidth, rowHeight,
     } = boardDataRef.current;
@@ -112,6 +113,8 @@ const Board = (props) => {
     ctx.font = `bold ${rowHeight}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.fillStyle = color;
+
     const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
       symbol,
     );
@@ -119,6 +122,13 @@ const Board = (props) => {
       - actualBoundingBoxDescent;
     ctx
       .fillText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
+
+    if (color) {
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 4;
+      ctx
+        .strokeText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
+    }
   };
 
   const clickHandler = (event) => {
@@ -132,7 +142,7 @@ const Board = (props) => {
       return;
     }
 
-    const [row, column] = dataIndex.split(',');
+    const [row, column] = dataIndex.split(',').map((n) => parseInt(n, 0));
     // const { matrix } = props;
     if (matrix[row][column] !== '') {
       return;
@@ -145,10 +155,19 @@ const Board = (props) => {
     const { newMove } = props;
     newMove([row, column, symbol]);
 
-    // const matrix1 = getMatrix();
-    // console.log(matrix1[row][column]);
-
-    setDraw(isDraw());
+    if (isDraw()) {
+      setDraw(true);
+    } else {
+      const winningCells = checkWin(row, column);
+      if (winningCells) {
+        setWon(true);
+        winningCells.forEach(
+          (c) => {
+            drawSymbolInCell(c[0], c[1], c[2], winningColor, winningStrokeColor);
+          },
+        );
+      }
+    }
   };
 
   const refillBoard = useCallback(() => {
@@ -187,7 +206,11 @@ const Board = (props) => {
 
     svg = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
-    svg.rect(width, height).fill(boardColor); // .cx(clientWidth / 2);
+    svg.rect(width, height).attr({
+      fill: boardColor,
+      stroke: lineColor,
+      'stroke-width': 6,
+    });
 
     const columnWidth = Math.ceil((width - 40) / dimension);
     const rowHeight = Math.ceil((height - 40) / dimension);
@@ -196,7 +219,7 @@ const Board = (props) => {
     for (let i = 0; i < dimension + 1; i++) {
       const strokeStyle = {
         color: lineColor,
-        width: (i === 0 || i === dimension) ? 3 : 1,
+        width: 1,
         // dasharray: '1,1',
       };
       svg.line(padding, rowHeight * i + padding, width - padding,
@@ -244,13 +267,13 @@ const Board = (props) => {
   const { players, nextPlayer } = props;
   return (
     <div className="board">
-      <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
-      <div ref={canvasContainerElement} id="canvas-container" />
+      <Banner players={players} nextPlayer={nextPlayer} draw={draw}/>
+      <div ref={canvasContainerElement} id="canvas-container"/>
       {/* eslint-disable-next-line max-len */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
       <div
         ref={gridElement}
-        className={draw ? 'locked' : ''}
+        className={draw || won ? 'locked' : ''}
         id="grid"
         onClick={clickHandler}
         onMouseMove={mouseMoveHandler}

@@ -104,22 +104,13 @@ export const isDraw = () => {
  */
 export const checkWin = (row, column) => {
   const paths = criticalPaths(row, column);
-
   const completePaths = paths.filter(
     (p) => p !== null && !(p.map((v) => v[2]).includes('')),
   );
 
   for (const completePath of completePaths) {
     for (const player of players) {
-      if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
-        return completePath;
-      }
-    }
-  }
-
-  for (const completePath of completePaths) {
-    for (const player of players) {
-      if (completePath.map((v) => v[2]).every((w) => w === player.symbol)) {
+      if (completePath.map((v) => v[2]).every((w) => w === player)) {
         return completePath;
       }
     }
