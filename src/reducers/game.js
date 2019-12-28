@@ -13,6 +13,7 @@ const initialState = {
   players: ['X', 'O'],
   nextPlayer: 'X',
   matrix: blankMatrix(),
+  winningPath: [],
 };
 
 const game = (state = initialState, action) => {
@@ -30,19 +31,23 @@ const game = (state = initialState, action) => {
     }
     case GAME.RESET_BOARD: {
       const matrix = [...state.matrix];
-      for (let i = 0; i < matrix.length; i++) {
-        for (let j = 0; j < matrix[i].length; j++) {
-          matrix[i][j] = '';
-        }
+
+      for (let i = 0; i < dimension * dimension; i++) {
+        matrix[Math.floor(i / dimension)][i % dimension] = '';
       }
 
-      console.log(matrix);
       return {
         ...state,
         sessionNumber: state.sessionNumber + 1,
         matrix,
+        winningPath: [],
       };
     }
+    case GAME.SET_WINNING_PATH:
+      return {
+        ...state,
+        winningPath: action.winningPath,
+      };
     default:
       return state;
   }

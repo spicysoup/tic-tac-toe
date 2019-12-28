@@ -1,16 +1,20 @@
 import React from 'react';
-import { NavLink, Route, Switch } from 'react-router-dom';
+import {
+  NavLink, Route, Switch, withRouter,
+} from 'react-router-dom';
 import Dummy from 'components/Dummy';
 import Board from 'components/Board';
 import './App.css';
 import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as actionCreators from 'actions';
-import logo from './logo.svg';
+// import logo from './logo.svg';
+import logo from './tic-tac-toe-svgrepo-com.svg';
 
 function App(props) {
   const { dimension, resetBoard } = props;
 
+  const { location: { pathname } } = props;
   return (
     <div className="App">
       <header className="App-header">
@@ -28,7 +32,19 @@ function App(props) {
             Learn the Rules
           </a>
           <NavLink className="App-link" to="/board">Start playing</NavLink>
-          <div className="App-link" onClick={resetBoard}>Reset</div>
+          {pathname === '/board'
+          && (
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/interactive-supports-focus
+            <div
+              role="link"
+              className="App-link"
+              onClick={resetBoard}
+            >
+              Reset
+            </div>
+          )}
+
         </nav>
       </header>
       <Switch>
@@ -46,10 +62,11 @@ function App(props) {
 App.propTypes = {
   dimension: PropTypes.number.isRequired,
   resetBoard: PropTypes.func.isRequired,
+  location: PropTypes.instanceOf(Object).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   dimension: state.game.dimension,
 });
 
-export default connect(mapStateToProps, actionCreators)(App);
+export default withRouter(connect(mapStateToProps, actionCreators)(App));
