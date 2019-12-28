@@ -132,7 +132,7 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
-    if (draw) {
+    if (draw || won) {
       return;
     }
 
