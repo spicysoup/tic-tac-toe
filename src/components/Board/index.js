@@ -4,6 +4,7 @@ import React, {
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
+import { isEqual } from 'lodash';
 import './style.css';
 import { Layer, Stage } from 'konva';
 import * as actionCreators from 'actions';
@@ -35,9 +36,11 @@ Banner.propTypes = {
 };
 
 const Board = (props) => {
-  const { dimension, matrix, sessionNumber } = props;
+  const {
+    dimension, matrix, sessionNumber, winningPath,
+  } = props;
 
-  const boardDataRef = useRef({ matrix });
+  const boardDataRef = useRef({ matrix, winningPath });
   const gridElement = useRef(null);
   const canvasContainerElement = useRef(null);
   const [draw, setDraw] = useState(false);
@@ -48,6 +51,7 @@ const Board = (props) => {
   const highlightBackgroundColor = 'rgba(221, 227, 225, 0)';
   const winningColor = 'gold';
   const winningStrokeColor = '#80321B';
+  const cellTextColor = 'black';
 
   const coordinatesToCellIndex = (mouseX, mouseY) => {
     const {
@@ -115,7 +119,15 @@ const Board = (props) => {
     ctx.font = `bold ${rowHeight}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = color;
+    if (color) {
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 4;
+      ctx.fillStyle = color;
+    } else {
+      ctx.strokeStyle = cellTextColor;
+      ctx.lineWidth = 1;
+      ctx.fillStyle = cellTextColor;
+    }
 
     const { actualBoundingBoxAscent, actualBoundingBoxDescent } = ctx.measureText(
       symbol,
@@ -126,8 +138,6 @@ const Board = (props) => {
       .fillText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
 
     if (color) {
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 4;
       ctx
         .strokeText(symbol, x + columnWidth / 2, y + rowHeight / 2 + offset);
     }
@@ -154,7 +164,7 @@ const Board = (props) => {
 
     drawSymbolInCell(row, column, symbol);
 
-    const { newMove } = props;
+    const { newMove, setWinningPath } = props;
     newMove([row, column, symbol]);
 
     if (isDraw()) {
@@ -163,9 +173,12 @@ const Board = (props) => {
       const winningCells = checkWin(row, column);
       if (winningCells) {
         setWon(true);
+        setWinningPath(winningCells);
+        boardDataRef.current.winningPath = winningCells;
         winningCells.forEach(
           (c) => {
-            drawSymbolInCell(c[0], c[1], c[2], winningColor, winningStrokeColor);
+            drawSymbolInCell(c[0], c[1], c[2], winningColor,
+              winningStrokeColor);
           },
         );
       }
@@ -176,8 +189,14 @@ const Board = (props) => {
     boardDataRef.current.matrix.forEach((row, r) => {
       row.forEach((column, c) => {
         if (column !== '') {
-          console.log('About to refill cell');
-          drawSymbolInCell(r, c, column);
+          const winningCell = boardDataRef.current.winningPath.findIndex(
+            (v) => isEqual([v[0], v[1]], [r, c]),
+          );
+          if (winningCell !== -1) {
+            drawSymbolInCell(r, c, column, winningColor, winningStrokeColor);
+          } else {
+            drawSymbolInCell(r, c, column);
+          }
         }
       });
     });
@@ -271,6 +290,7 @@ const Board = (props) => {
     console.log(`Session number is: ${sessionNumber}`);
     setDraw(false);
     setWon(false);
+    boardDataRef.current.winningPath = [];
     drawBoard();
   }, [sessionNumber, drawBoard]);
 
@@ -299,6 +319,8 @@ Board.propTypes = {
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
   matrix: PropTypes.arrayOf(PropTypes.array).isRequired,
   sessionNumber: PropTypes.number.isRequired,
+  winningPath: PropTypes.arrayOf(PropTypes.array).isRequired,
+  setWinningPath: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -306,6 +328,7 @@ const mapStateToProps = (state) => ({
   players: state.game.players,
   matrix: state.game.matrix,
   sessionNumber: state.game.sessionNumber,
+  winningPath: state.game.winningPath || [],
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);

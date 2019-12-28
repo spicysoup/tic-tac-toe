@@ -22,3 +22,8 @@ export const newMove = (move) => ({
 export const resetBoard = () => ({
   type: GAME.RESET_BOARD,
 });
+
+export const setWinningPath = (winningPath) => ({
+  type: GAME.SET_WINNING_PATH,
+  winningPath,
+});
