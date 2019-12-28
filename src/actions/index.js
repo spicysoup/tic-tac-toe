@@ -18,3 +18,7 @@ export const newMove = (move) => ({
   type: GAME.NEW_MOVE,
   move,
 });
+
+export const resetBoard = () => ({
+  type: GAME.RESET_BOARD,
+});

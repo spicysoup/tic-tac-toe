@@ -12,4 +12,5 @@ export const SETUP = {
 
 export const GAME = {
   NEW_MOVE: 'NEW_MOVE',
+  RESET_BOARD: 'RESET_BOARD',
 };
