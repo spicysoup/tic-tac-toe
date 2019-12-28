@@ -2,7 +2,7 @@ import { GAME } from 'actions/types';
 
 const togglePlayer = (symbol) => (symbol === 'X' ? 'O' : 'X');
 
-const dimension = 4;
+const dimension = 8;
 const initialState = {
   dimension,
   players: ['X', 'O'],
