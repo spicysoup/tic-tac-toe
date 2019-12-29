@@ -1,17 +1,20 @@
 import { GAME } from 'actions/types';
 
-const togglePlayer = (symbol) => (symbol === 'X' ? 'O' : 'X');
-
 const sessionNumber = 0;
 const dimension = 4;
+const players = ['✿', '⚘'];
+
+const togglePlayer = (symbol) => (symbol === players[0] ? players[1] : players[0]);
+
 const blankMatrix = () => new Array(dimension).fill('0')
 // eslint-disable-next-line no-unused-vars
   .map((row) => new Array(dimension).fill(''));
+
 const initialState = {
   sessionNumber,
   dimension,
-  players: ['X', 'O'],
-  nextPlayer: 'X',
+  players,
+  nextPlayer: players[0],
   matrix: blankMatrix(),
   winningPath: [],
 };
