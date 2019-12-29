@@ -17,6 +17,7 @@ const initialState = {
   nextPlayer: players[0],
   matrix: blankMatrix(),
   winningPath: [],
+  draw: false,
 };
 
 const game = (state = initialState, action) => {
@@ -43,6 +44,7 @@ const game = (state = initialState, action) => {
         ...state,
         sessionNumber: state.sessionNumber + 1,
         matrix,
+        draw: false,
         winningPath: [],
       };
     }
@@ -50,6 +52,11 @@ const game = (state = initialState, action) => {
       return {
         ...state,
         winningPath: action.winningPath,
+      };
+    case GAME.SET_DRAW:
+      return {
+        ...state,
+        draw: action.draw,
       };
     default:
       return state;
