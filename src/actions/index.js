@@ -27,3 +27,8 @@ export const setWinningPath = (winningPath) => ({
   type: GAME.SET_WINNING_PATH,
   winningPath,
 });
+
+export const setDraw = (draw) => ({
+  type: GAME.SET_DRAW,
+  draw,
+});

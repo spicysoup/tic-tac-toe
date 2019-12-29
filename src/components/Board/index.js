@@ -1,6 +1,4 @@
-import React, {
-  useCallback, useEffect, useRef, useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
@@ -37,14 +35,13 @@ Banner.propTypes = {
 
 const Board = (props) => {
   const {
-    dimension, matrix, sessionNumber, winningPath,
+    dimension, matrix, sessionNumber, winningPath, players, nextPlayer, draw,
+    newMove, setWinningPath, setDraw,
   } = props;
 
   const boardDataRef = useRef({ matrix, winningPath });
   const gridElement = useRef(null);
   const canvasContainerElement = useRef(null);
-  const [draw, setDraw] = useState(false);
-  const [won, setWon] = useState(false);
 
   const lineColor = 'rgba(27,31,35,.70)';
   const boardColor = 'rgba(221, 227, 225, 0.3)';
@@ -67,8 +64,6 @@ const Board = (props) => {
   };
 
   const mouseMoveHandler = (event) => {
-    // console.log(event.target);
-    // console.log(event.clientX, event.clientY);
     if (event.target.tagName !== 'rect'
       || event.target.getAttribute('class') === 'highlight') {
       return;
@@ -146,7 +141,7 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
-    if (draw || won) {
+    if (draw || winningPath.length > 0) {
       return;
     }
 
@@ -157,7 +152,6 @@ const Board = (props) => {
     }
 
     const [row, column] = dataIndex.split(',').map((n) => parseInt(n, 0));
-    // const { matrix } = props;
     if (matrix[row][column] !== '') {
       return;
     }
@@ -166,7 +160,6 @@ const Board = (props) => {
 
     drawSymbolInCell(row, column, symbol);
 
-    const { newMove, setWinningPath } = props;
     newMove([row, column, symbol]);
 
     if (isDraw()) {
@@ -174,7 +167,6 @@ const Board = (props) => {
     } else {
       const winningCells = checkWin(row, column);
       if (winningCells) {
-        setWon(true);
         setWinningPath(winningCells);
         boardDataRef.current.winningPath = winningCells;
         winningCells.forEach(
@@ -284,21 +276,21 @@ const Board = (props) => {
 
   useEffect(() => {
     boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 0);
-    window.addEventListener('resize', () => {
+    const listener = () => {
       clearTimeout(boardDataRef.current.timeoutHandle);
       boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 500);
-    });
+    };
+    window.addEventListener('resize', listener);
+    return () => {
+      window.removeEventListener('resize', listener);
+    };
   }, [drawBoard]);
 
   useEffect(() => {
     console.log(`Session number is: ${sessionNumber}`);
-    setDraw(false);
-    setWon(false);
-    boardDataRef.current.winningPath = [];
     drawBoard();
   }, [sessionNumber, drawBoard]);
 
-  const { players, nextPlayer } = props;
   return (
     <div className="board">
       <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
@@ -308,7 +300,7 @@ const Board = (props) => {
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
         <div
           ref={gridElement}
-          className={draw || won ? 'locked' : ''}
+          className={draw || winningPath.length > 0 ? 'locked' : ''}
           id="grid"
           onClick={clickHandler}
         />
@@ -326,6 +318,8 @@ Board.propTypes = {
   sessionNumber: PropTypes.number.isRequired,
   winningPath: PropTypes.arrayOf(PropTypes.array).isRequired,
   setWinningPath: PropTypes.func.isRequired,
+  setDraw: PropTypes.func.isRequired,
+  draw: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -333,7 +327,8 @@ const mapStateToProps = (state) => ({
   players: state.game.players,
   matrix: state.game.matrix,
   sessionNumber: state.game.sessionNumber,
-  winningPath: state.game.winningPath || [],
+  winningPath: state.game.winningPath,
+  draw: state.game.draw,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);
