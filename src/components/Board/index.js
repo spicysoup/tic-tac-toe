@@ -67,6 +67,8 @@ const Board = (props) => {
   };
 
   const mouseMoveHandler = (event) => {
+    // console.log(event.target);
+    // console.log(event.clientX, event.clientY);
     if (event.target.tagName !== 'rect'
       || event.target.getAttribute('class') === 'highlight') {
       return;
@@ -223,8 +225,10 @@ const Board = (props) => {
     banner.style.fontSize = `${Math.floor(width / 15)}px`;
 
     gridElement.current.style.left = `${(clientWidth - width) / 2}px`;
-    canvasContainerElement.current.style.left = `${(clientWidth - width)
-    / 2}px`;
+    // gridElement.current.style.width = `${width}px`;
+    // canvasContainerElement.current.style.left = `${(clientWidth - width)
+    // / 2}px`;
+    canvasContainerElement.current.style.width = `${width}px`;
 
     svg = SVG().addTo('#grid').size(width, height);
     const { left, top } = document.querySelector('svg').getBoundingClientRect();
@@ -298,16 +302,17 @@ const Board = (props) => {
   return (
     <div className="board">
       <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
-      <div ref={canvasContainerElement} id="canvas-container" />
-      {/* eslint-disable-next-line max-len */}
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
-      <div
-        ref={gridElement}
-        className={draw || won ? 'locked' : ''}
-        id="grid"
-        onClick={clickHandler}
-        onMouseMove={mouseMoveHandler}
-      />
+      <div className="grid-container" onMouseMove={mouseMoveHandler}>
+        <div ref={canvasContainerElement} id="canvas-container" />
+        {/* eslint-disable-next-line max-len */}
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
+        <div
+          ref={gridElement}
+          className={draw || won ? 'locked' : ''}
+          id="grid"
+          onClick={clickHandler}
+        />
+      </div>
     </div>
   );
 };

@@ -10,8 +10,27 @@
 /*    position: absolute;*/
 /*}*/
 
+.grid-container {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+}
+
 #canvas-container, #grid {
-    position: absolute;
+    /*position: absolute;*/
+    grid-row-start: 1;
+    grid-row-end: 2;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    /*margin: 0 auto;*/
+}
+
+#canvas-container {
+    margin: 0 auto;
+}
+
+#grid {
+    z-index: 9999;
 }
 
 #canvas-container {
