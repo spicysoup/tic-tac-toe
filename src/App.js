@@ -20,7 +20,7 @@ function App(props) {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Tic-Tac-Toe
+          <strong>Tic-Tac-Toe</strong>
         </p>
         <nav>
           <a
