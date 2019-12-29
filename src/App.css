@@ -8,22 +8,13 @@
     padding: 1px;
     background-color: white;
     border-radius: 10px;
+    margin-top: 0.5em;
 }
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo {
         /*animation: App-logo-spin infinite 20s linear;*/
     }
-}
-
-header img+p {
-    margin: 0.5em;
-    font-size: 1.2em;
-}
-
-header a, header div {
-    padding: 1em;
-    cursor: pointer;
 }
 
 .App-header {
@@ -37,12 +28,24 @@ header a, header div {
     color: white;
 }
 
+App-header a, header div {
+    padding: 1em;
+    cursor: pointer;
+}
+
+.App-header img+p {
+    margin: 0.5em auto 0;
+    font-size: 1.2em;
+}
+
 .App-link {
     /*color: #61dafb;*/
-    display: inline;
+    display: inline-block;
     color: white;
     font-size: 0.7em;
     text-decoration: underline;
+    /*margin: 0.5em auto;*/
+    padding: 1em;
 }
 
 @keyframes App-logo-spin {

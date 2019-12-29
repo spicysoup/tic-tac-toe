@@ -37,7 +37,6 @@ function App(props) {
               Reset
             </div>
           )}
-
         </nav>
       </header>
       <Switch>

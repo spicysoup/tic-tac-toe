@@ -1,7 +1,7 @@
 import { GAME } from 'actions/types';
 
 const sessionNumber = 0;
-const dimension = 4;
+const dimension = 8;
 const players = ['✿', '⚘'];
 
 const togglePlayer = (symbol) => (symbol === players[0] ? players[1] : players[0]);
