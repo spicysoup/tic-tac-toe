@@ -16,7 +16,7 @@ const Home = () => (
           vertical, or diagonal row wins.
         </p>
         <p>
-          Bu default, the size of the game board is 4x4 but it can be changed <NavLink to="/board">here</NavLink>.
+          By default, the size of the game board is 4x4 but it can be changed <NavLink to="/settings">here</NavLink>.
         </p>
     </div>
   </div>
