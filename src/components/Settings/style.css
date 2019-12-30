@@ -1,0 +1,47 @@
+.setting-field {
+    display: flex;
+    flex-direction: row;
+    /*justify-content: center;*/
+    align-items: center;
+    justify-content: center;
+    width: 40vw;
+    margin: 1em auto;
+    font-size: 1.4em;
+    opacity: 0.7;
+
+}
+
+.setting-field .spinner {
+    display: flex;
+    justify-content: space-evenly;
+    width: 6em;
+    /*margin: 1em auto 0;*/
+    font-size: 1.2em;
+    margin-left: 0.5em;
+}
+
+.setting-field .spinner span:first-child {
+    border-width: 1px 0 1px 1px;
+    cursor: pointer;
+    /*padding-left: 0.2em;*/
+}
+
+.setting-field .spinner span:last-child {
+    border-width: 1px 1px 1px 0;
+    cursor: pointer;
+    /*padding-right: 0.2em;*/
+}
+
+.setting-field .spinner .dimension {
+    width: 4em;
+    border-left: 1px solid #282c34;
+    border-right: 1px solid #282c34;
+    margin: 0;
+}
+
+.setting-field .spinner {
+    border-color: #282c34;
+    border-style: solid;
+    border-radius: 8px;
+    text-align: center;
+}

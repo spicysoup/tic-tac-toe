@@ -32,3 +32,8 @@ export const setDraw = (draw) => ({
   type: GAME.SET_DRAW,
   draw,
 });
+
+export const setDimension = (dimension) => ({
+  type: GAME.SET_DIMENSION,
+  dimension,
+});

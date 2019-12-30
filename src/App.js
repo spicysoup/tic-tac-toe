@@ -8,6 +8,7 @@ import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import * as actionCreators from 'actions';
 import Home from 'components/Home';
+import Settings from 'components/Settings';
 import logo from './tic-tac-toe-svgrepo-com.svg';
 
 function App(props) {
@@ -24,7 +25,8 @@ function App(props) {
         </p>
         <nav>
           <NavLink className="App-link" to="/">Learn the rules</NavLink>
-          <NavLink className="App-link" to="/board">Play</NavLink>
+          {pathname !== '/board'
+          && <NavLink className="App-link" to="/board">Play</NavLink>}
           {pathname === '/board'
           && (
             // eslint-disable-next-line max-len
@@ -37,6 +39,7 @@ function App(props) {
               Reset
             </div>
           )}
+          <NavLink className="App-link" to="/settings">Settings</NavLink>
         </nav>
       </header>
       <Switch>
@@ -45,6 +48,9 @@ function App(props) {
         </Route>
         <Route path="/board">
           <Board dimension={dimension} />
+        </Route>
+        <Route path="/settings">
+          <Settings />
         </Route>
       </Switch>
     </div>

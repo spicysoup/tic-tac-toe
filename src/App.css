@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Fascinate+Inline&display=swap');
+
 .App {
     text-align: center;
 }
@@ -35,7 +37,8 @@ App-header a, header div {
 
 .App-header img+p {
     margin: 0.5em auto 0;
-    font-size: 1.2em;
+    font-size: 1.8em;
+    font-family: 'Fascinate Inline', cursive;
 }
 
 .App-link {
