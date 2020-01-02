@@ -1,11 +1,14 @@
 import { eventChannel } from 'redux-saga';
-import { call, fork, put, take } from 'redux-saga/effects';
+import {
+  call, fork, put, take,
+} from 'redux-saga/effects';
 import { GAME } from 'actions/types';
 import { gameJoined, serverConnected } from 'actions';
 
 let ws;
+let savedSessionInfo;
 
-function joinGame(action) {
+function sendMessage(action) {
   ws.send(JSON.stringify(action));
 }
 
@@ -87,16 +90,25 @@ export function* watchInboundWSMessages() {
 
 export function* watchOutboundWSMessages() {
   while (true) {
-    const action = yield take([GAME.JOIN_GAME, GAME.RESET_BOARD]);
+    const action = yield take([GAME.JOIN_GAME, GAME.RESET_BOARD, GAME.NEW_MOVE]);
     console.log(action);
 
-    switch (action.type) {
-      case GAME.JOIN_GAME: {
-        const savedSessionInfo = yield call(retrieveSessionInfo);
-        yield fork(joinGame, { ...action, ...savedSessionInfo });
-        break;
-      }
-      default:
+    if (action.type === GAME.JOIN_GAME) {
+      savedSessionInfo = yield call(retrieveSessionInfo);
     }
+
+    yield fork(sendMessage, { ...action, ...savedSessionInfo });
+
+    // switch (action.type) {
+    //   case GAME.JOIN_GAME: {
+    //     savedSessionInfo = yield call(retrieveSessionInfo);
+    //     yield fork(joinGame, { ...action, ...savedSessionInfo });
+    //     break;
+    //   }
+    //   case GAME.NEW_MOVE:
+    //     yield fork(sendNewMove, { ...action, ...savedSessionInfo });
+    //     break;
+    //   default:
+    // }
   }
 }

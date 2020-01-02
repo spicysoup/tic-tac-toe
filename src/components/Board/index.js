@@ -16,13 +16,13 @@ const Banner = (props) => {
     <div>
       <div className="info">Session {sessionID} - Player {players[player]}</div>
       <div className="banner">
-        <div className={players[0] === nextPlayer
+        <div className={nextPlayer === 0
           ? 'active-player'
           : ''}
         >{players[0]}
         </div>
         <div className={draw ? 'draw active' : 'draw'}>DRAW</div>
-        <div className={players[1] === nextPlayer
+        <div className={nextPlayer === 1
           ? 'active-player'
           : ''}
         >{players[1]}
@@ -33,7 +33,7 @@ const Banner = (props) => {
 };
 
 Banner.propTypes = {
-  nextPlayer: PropTypes.string.isRequired,
+  nextPlayer: PropTypes.number.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
   player: PropTypes.number.isRequired,
   draw: PropTypes.bool.isRequired,
@@ -159,15 +159,21 @@ const Board = (props) => {
     }
 
     const [row, column] = dataIndex.split(',').map((n) => parseInt(n, 0));
-    if (matrix[row][column] !== '') {
+    if (matrix[row][column] !== null) {
       return;
     }
 
-    const { nextPlayer: symbol } = props;
+    // const { nextPlayer: symbol } = props;
+    console.log('----------------------------');
+    console.log('Next player', nextPlayer);
+    console.log('Players', players);
+    console.log('----------------------------');
+
+    const symbol = players[nextPlayer];
 
     drawSymbolInCell(row, column, symbol);
 
-    newMove([row, column, symbol]);
+    newMove([row, column, nextPlayer]);
 
     if (isDraw()) {
       setDraw(true);
@@ -189,14 +195,14 @@ const Board = (props) => {
   const refillBoard = useCallback(() => {
     boardDataRef.current.matrix.forEach((row, r) => {
       row.forEach((column, c) => {
-        if (column !== '') {
+        if (column !== null) {
           const winningCell = boardDataRef.current.winningPath.findIndex(
             (v) => isEqual([v[0], v[1]], [r, c]),
           );
           if (winningCell !== -1) {
-            drawSymbolInCell(r, c, column, winningColor, winningStrokeColor);
+            drawSymbolInCell(r, c, players[column], winningColor, winningStrokeColor);
           } else {
-            drawSymbolInCell(r, c, column);
+            drawSymbolInCell(r, c, players[column]);
           }
         }
       });
@@ -325,7 +331,7 @@ const Board = (props) => {
 Board.propTypes = {
   dimension: PropTypes.number.isRequired,
   newMove: PropTypes.func.isRequired,
-  nextPlayer: PropTypes.string.isRequired,
+  nextPlayer: PropTypes.number.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
   player: PropTypes.number.isRequired,
   matrix: PropTypes.arrayOf(PropTypes.array).isRequired,

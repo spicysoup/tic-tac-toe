@@ -5,15 +5,13 @@ const initialDimension = 4;
 const initialRound = 0;
 const players = ['✿', '⚘'];
 
-const togglePlayer = (symbol) => (symbol === players[0]
-  ? players[1]
-  : players[0]);
+const togglePlayer = (p) => (p === 0 ? 1 : 0);
 
 const blankMatrix = (dimension = initialDimension) => new Array(dimension).fill(
   '0',
 )
 // eslint-disable-next-line no-unused-vars
-  .map((row) => new Array(dimension).fill(''));
+  .map((row) => new Array(dimension).fill(null));
 
 const initialState = {
   connected: false,
@@ -22,7 +20,7 @@ const initialState = {
   round: initialRound,
   player: 0,
   players,
-  nextPlayer: players[0],
+  nextPlayer: 0,
   matrix: blankMatrix(),
   winningPath: [],
   draw: false,
@@ -45,7 +43,7 @@ const game = (state = initialState, action) => {
       const matrix = [...state.matrix];
 
       for (let i = 0; i < state.dimension * state.dimension; i++) {
-        matrix[Math.floor(i / state.dimension)][i % state.dimension] = '';
+        matrix[Math.floor(i / state.dimension)][i % state.dimension] = null;
       }
 
       return {

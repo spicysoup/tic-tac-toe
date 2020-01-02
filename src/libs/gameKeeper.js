@@ -74,7 +74,7 @@ const criticalPaths = (row, column) => {
  * @returns {boolean}
  */
 export const isDraw = () => {
-  const nonEmpty = (v) => v !== '';
+  const nonEmpty = (v) => v !== null;
   const allSame = (v, i, a) => v === a[0];
 
   for (let rc = 0; rc < dimension; rc++) {
@@ -105,7 +105,7 @@ export const isDraw = () => {
 export const checkWin = (row, column) => {
   const paths = criticalPaths(row, column);
   const completePaths = paths.filter(
-    (p) => p !== null && !(p.map((v) => v[2]).includes('')),
+    (p) => p !== null && !(p.map((v) => v[2]).includes(null)),
   );
 
   for (const completePath of completePaths) {
