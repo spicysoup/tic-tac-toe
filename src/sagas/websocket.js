@@ -1,7 +1,5 @@
 import { eventChannel } from 'redux-saga';
-import {
-  call, fork, put, take,
-} from 'redux-saga/effects';
+import { call, fork, put, take } from 'redux-saga/effects';
 import { GAME } from 'actions/types';
 import { gameJoined, serverConnected } from 'actions';
 
@@ -49,6 +47,18 @@ function initWebsocket() {
   });
 }
 
+function saveSessionInfo({ sessionID, player }) {
+  sessionStorage.setItem('sessionID', sessionID);
+  sessionStorage.setItem('player', player);
+}
+
+function retrieveSessionInfo() {
+  return {
+    sessionID: sessionStorage.getItem('sessionID'),
+    player: sessionStorage.getItem('player'),
+  };
+}
+
 export function* watchInboundWSMessages() {
   const channel = yield call(initWebsocket);
   while (true) {
@@ -56,9 +66,16 @@ export function* watchInboundWSMessages() {
     console.log('==================================');
     console.log(action);
     switch (action.type) {
-      case GAME.GAME_JOINED:
-        yield put(gameJoined(action));
+      case GAME.GAME_JOINED: {
+        const session = {
+          ...action,
+          sessionID: parseInt(action.sessionID, 10),
+          player: parseInt(action.player, 10),
+        };
+        yield call(saveSessionInfo, session);
+        yield put(gameJoined(session));
         break;
+      }
       case GAME.CONNECTED:
         console.log('Connection state changed.');
         yield put(serverConnected(action.connected));
@@ -74,9 +91,11 @@ export function* watchOutboundWSMessages() {
     console.log(action);
 
     switch (action.type) {
-      case GAME.JOIN_GAME:
-        yield fork(joinGame, action);
+      case GAME.JOIN_GAME: {
+        const savedSessionInfo = yield call(retrieveSessionInfo);
+        yield fork(joinGame, { ...action, ...savedSessionInfo });
         break;
+      }
       default:
     }
   }
