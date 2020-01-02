@@ -48,6 +48,7 @@ export const gameJoined = ({ sessionID, player }) => ({
   player,
 });
 
-export const serverConnected = () => ({
+export const serverConnected = (connected = true) => ({
   type: GAME.CONNECTED,
+  connected,
 });

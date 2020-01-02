@@ -148,7 +148,7 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
-    if (draw || winningPath.length > 0) {
+    if (!connected || draw || winningPath.length > 0) {
       return;
     }
 

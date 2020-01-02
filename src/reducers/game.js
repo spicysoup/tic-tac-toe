@@ -78,7 +78,7 @@ const game = (state = initialState, action) => {
     case GAME.CONNECTED:
       return {
         ...state,
-        connected: true,
+        connected: action.connected,
       };
     case GAME.GAME_JOINED: {
       const { sessionID, player } = action;

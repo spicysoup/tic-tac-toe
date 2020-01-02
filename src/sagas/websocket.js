@@ -2,8 +2,8 @@ import { eventChannel } from 'redux-saga';
 import {
   call, fork, put, take,
 } from 'redux-saga/effects';
-import { DUMMY, GAME } from 'actions/types';
-import { gameJoined, serverConnected } from 'actions'
+import { GAME } from 'actions/types';
+import { gameJoined, serverConnected } from 'actions';
 
 let ws;
 
@@ -21,7 +21,8 @@ function initWebsocket() {
     };
 
     ws.onerror = (error) => {
-      console.log(`WebSocket error ${error}`);
+      console.log('WebSocket error.', error);
+      emitter(serverConnected(false));
     };
 
     ws.onmessage = (message) => {
@@ -34,6 +35,11 @@ function initWebsocket() {
       } catch (e) {
         console.error(e);
       }
+    };
+
+    ws.onclose = (event) => {
+      console.log('Connection closed.', event);
+      emitter(serverConnected(false));
     };
 
     // unsubscribe function
@@ -53,10 +59,11 @@ export function* watchInboundWSMessages() {
       case GAME.GAME_JOINED:
         yield put(gameJoined(action));
         break;
-      case GAME.CONNECTED: {
-        console.log("I'm called");
-        yield put(serverConnected());
-      }
+      case GAME.CONNECTED:
+        console.log('Connection state changed.');
+        yield put(serverConnected(action.connected));
+        break;
+      default:
     }
   }
 }
@@ -69,6 +76,8 @@ export function* watchOutboundWSMessages() {
     switch (action.type) {
       case GAME.JOIN_GAME:
         yield fork(joinGame, action);
+        break;
+      default:
     }
   }
 }
