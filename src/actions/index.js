@@ -37,3 +37,17 @@ export const setDimension = (dimension) => ({
   type: GAME.SET_DIMENSION,
   dimension,
 });
+
+export const joinGame = () => ({
+  type: GAME.JOIN_GAME,
+});
+
+export const gameJoined = ({ sessionID, player }) => ({
+  type: GAME.GAME_JOINED,
+  sessionID,
+  player,
+});
+
+export const serverConnected = () => ({
+  type: GAME.CONNECTED,
+});

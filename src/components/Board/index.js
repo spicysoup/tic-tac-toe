@@ -9,19 +9,24 @@ import * as actionCreators from 'actions';
 import { checkWin, isDraw } from 'libs/gameKeeper';
 
 const Banner = (props) => {
-  const { players, nextPlayer, draw } = props;
+  const {
+    players, player, nextPlayer, draw, sessionID,
+  } = props;
   return (
-    <div className="banner">
-      <div className={players[0] === nextPlayer
-        ? 'active-player'
-        : ''}
-      >{players[0]}
-      </div>
-      <div className={draw ? 'draw active' : 'draw'}>DRAW</div>
-      <div className={players[1] === nextPlayer
-        ? 'active-player'
-        : ''}
-      >{players[1]}
+    <div>
+      <div className="info">Session {sessionID} - Player {players[player]}</div>
+      <div className="banner">
+        <div className={players[0] === nextPlayer
+          ? 'active-player'
+          : ''}
+        >{players[0]}
+        </div>
+        <div className={draw ? 'draw active' : 'draw'}>DRAW</div>
+        <div className={players[1] === nextPlayer
+          ? 'active-player'
+          : ''}
+        >{players[1]}
+        </div>
       </div>
     </div>
   );
@@ -30,13 +35,15 @@ const Banner = (props) => {
 Banner.propTypes = {
   nextPlayer: PropTypes.string.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
+  player: PropTypes.number.isRequired,
   draw: PropTypes.bool.isRequired,
+  sessionID: PropTypes.number.isRequired,
 };
 
 const Board = (props) => {
   const {
-    dimension, matrix, sessionNumber, winningPath, players, nextPlayer, draw,
-    newMove, setWinningPath, setDraw,
+    dimension, matrix, sessionID, winningPath, players, nextPlayer, draw,
+    newMove, setWinningPath, setDraw, joinGame, connected, round, player,
   } = props;
 
   const boardDataRef = useRef({ matrix, winningPath });
@@ -275,7 +282,7 @@ const Board = (props) => {
   }, [dimension, refillBoard]);
 
   useEffect(() => {
-    boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 0);
+    // boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 0);
     const listener = () => {
       clearTimeout(boardDataRef.current.timeoutHandle);
       boardDataRef.current.timeoutHandle = setTimeout(drawBoard, 500);
@@ -287,20 +294,26 @@ const Board = (props) => {
   }, [drawBoard]);
 
   useEffect(() => {
-    console.log(`Session number is: ${sessionNumber}`);
+    // if (sessionID === 0) {
+    //   return;
+    // }
+    console.log(`Session [${sessionID}] round [${round}]`);
+    if (connected && sessionID === 0) {
+      joinGame();
+    }
     drawBoard();
-  }, [sessionNumber, drawBoard]);
+  }, [sessionID, drawBoard, joinGame, connected, round]);
 
   return (
     <div className="board">
-      <Banner players={players} nextPlayer={nextPlayer} draw={draw} />
+      <Banner player={player} players={players} nextPlayer={nextPlayer} draw={draw} sessionID={sessionID} />
       <div className="grid-container" onMouseMove={mouseMoveHandler}>
         <div ref={canvasContainerElement} id="canvas-container" />
         {/* eslint-disable-next-line max-len */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
         <div
           ref={gridElement}
-          className={draw || winningPath.length > 0 ? 'locked' : ''}
+          className={!connected || draw || winningPath.length > 0 ? 'locked' : ''}
           id="grid"
           onClick={clickHandler}
         />
@@ -314,21 +327,28 @@ Board.propTypes = {
   newMove: PropTypes.func.isRequired,
   nextPlayer: PropTypes.string.isRequired,
   players: PropTypes.arrayOf(PropTypes.string).isRequired,
+  player: PropTypes.number.isRequired,
   matrix: PropTypes.arrayOf(PropTypes.array).isRequired,
-  sessionNumber: PropTypes.number.isRequired,
+  sessionID: PropTypes.number.isRequired,
+  round: PropTypes.number.isRequired,
   winningPath: PropTypes.arrayOf(PropTypes.array).isRequired,
   setWinningPath: PropTypes.func.isRequired,
   setDraw: PropTypes.func.isRequired,
+  joinGame: PropTypes.func.isRequired,
   draw: PropTypes.bool.isRequired,
+  connected: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   nextPlayer: state.game.nextPlayer,
   players: state.game.players,
+  player: state.game.player,
   matrix: state.game.matrix,
-  sessionNumber: state.game.sessionNumber,
+  sessionID: state.game.sessionID,
+  round: state.game.round,
   winningPath: state.game.winningPath,
   draw: state.game.draw,
+  connected: state.game.connected,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);

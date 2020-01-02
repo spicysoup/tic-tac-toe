@@ -1,18 +1,26 @@
 import { GAME } from 'actions/types';
 
-const sessionNumber = 0;
+const initialSessionID = 0;
 const initialDimension = 4;
+const initialRound = 0;
 const players = ['✿', '⚘'];
 
-const togglePlayer = (symbol) => (symbol === players[0] ? players[1] : players[0]);
+const togglePlayer = (symbol) => (symbol === players[0]
+  ? players[1]
+  : players[0]);
 
-const blankMatrix = (dimension = initialDimension) => new Array(dimension).fill('0')
+const blankMatrix = (dimension = initialDimension) => new Array(dimension).fill(
+  '0',
+)
 // eslint-disable-next-line no-unused-vars
   .map((row) => new Array(dimension).fill(''));
 
 const initialState = {
-  sessionNumber,
+  connected: false,
+  sessionID: initialSessionID,
   dimension: initialDimension,
+  round: initialRound,
+  player: 0,
   players,
   nextPlayer: players[0],
   matrix: blankMatrix(),
@@ -42,7 +50,7 @@ const game = (state = initialState, action) => {
 
       return {
         ...state,
-        sessionNumber: state.sessionNumber + 1,
+        round: state.round + 1,
         matrix,
         draw: false,
         winningPath: [],
@@ -61,12 +69,25 @@ const game = (state = initialState, action) => {
     case GAME.SET_DIMENSION:
       return {
         ...state,
-        sessionNumber: state.sessionNumber + 1,
+        sessionID: state.sessionID + 1,
         dimension: action.dimension,
         matrix: blankMatrix(action.dimension),
         draw: false,
         winningPath: [],
       };
+    case GAME.CONNECTED:
+      return {
+        ...state,
+        connected: true,
+      };
+    case GAME.GAME_JOINED: {
+      const { sessionID, player } = action;
+      return {
+        ...state,
+        sessionID: parseInt(sessionID, 10),
+        player,
+      };
+    }
     default:
       return state;
   }

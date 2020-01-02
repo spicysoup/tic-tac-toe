@@ -37,10 +37,15 @@
     /*z-index: 9999;*/
 }
 
+.info {
+    margin-top: 0.3em;
+    font-size: 1.5em;
+}
+
 .banner {
     position: static;
     display: flex;
-    margin: 0.3em auto 0.5em;
+    margin: 0.1em auto 0.5em;
     justify-content: space-between;
     font-size: 2.5em;
     font-weight: bold;
