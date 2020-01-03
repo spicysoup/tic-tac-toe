@@ -43,7 +43,7 @@ Banner.propTypes = {
 const Board = (props) => {
   const {
     dimension, matrix, sessionID, winningPath, players, nextPlayer, draw,
-    newMove, setWinningPath, setDraw, joinGame, connected, round, player,
+    newMove, setWinningPath, setDraw, joinGame, connected, round, player, peerReady,
   } = props;
 
   const boardDataRef = useRef({ matrix, winningPath });
@@ -148,7 +148,7 @@ const Board = (props) => {
   };
 
   const clickHandler = (event) => {
-    if (!connected || draw || winningPath.length > 0) {
+    if (!connected || !peerReady || draw || winningPath.length > 0) {
       return;
     }
 
@@ -319,7 +319,7 @@ const Board = (props) => {
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
         <div
           ref={gridElement}
-          className={!connected || draw || winningPath.length > 0 ? 'locked' : ''}
+          className={!connected || !peerReady || draw || winningPath.length > 0 ? 'locked' : ''}
           id="grid"
           onClick={clickHandler}
         />
@@ -343,6 +343,7 @@ Board.propTypes = {
   joinGame: PropTypes.func.isRequired,
   draw: PropTypes.bool.isRequired,
   connected: PropTypes.bool.isRequired,
+  peerReady: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -355,6 +356,7 @@ const mapStateToProps = (state) => ({
   winningPath: state.game.winningPath,
   draw: state.game.draw,
   connected: state.game.connected,
+  peerReady: state.game.peerReady,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);

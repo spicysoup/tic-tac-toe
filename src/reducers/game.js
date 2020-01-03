@@ -24,6 +24,7 @@ const initialState = {
   matrix: blankMatrix(),
   winningPath: [],
   draw: false,
+  peerReady: false,
 };
 
 const game = (state = initialState, action) => {
@@ -84,6 +85,12 @@ const game = (state = initialState, action) => {
         ...state,
         sessionID: parseInt(sessionID, 10),
         player,
+      };
+    }
+    case GAME.PEER_READY: {
+      return {
+        ...state,
+        peerReady: true,
       };
     }
     default:

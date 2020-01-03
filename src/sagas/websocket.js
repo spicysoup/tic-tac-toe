@@ -30,9 +30,12 @@ function initWebsocket() {
       console.log(message);
       try {
         const payload = JSON.parse(message.data);
-        if (payload.type === GAME.GAME_JOINED) {
+        if (payload.type) {
           emitter(payload);
         }
+        // if (payload.type === GAME.GAME_JOINED) {
+        //   emitter(payload);
+        // }
       } catch (e) {
         console.error(e);
       }
@@ -84,6 +87,7 @@ export function* watchInboundWSMessages() {
         yield put(serverConnected(action.connected));
         break;
       default:
+        yield put(action);
     }
   }
 }
