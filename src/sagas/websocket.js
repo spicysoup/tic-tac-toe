@@ -28,6 +28,10 @@ function initWebsocket() {
 
     ws.onmessage = (message) => {
       try {
+        console.log('=============================');
+        console.log('Raw message received:', message);
+        console.log('=============================');
+
         const payload = JSON.parse(message.data);
         if (payload.type) {
           emitter(payload);

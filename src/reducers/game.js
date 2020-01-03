@@ -25,20 +25,27 @@ const initialState = {
   winningPath: [],
   draw: false,
   peerReady: false,
+  peerMove: [],
 };
 
 const game = (state = initialState, action) => {
+  const move = () => {
+    const matrix = [...state.matrix];
+    // eslint-disable-next-line prefer-destructuring
+    matrix[action.move[0]][action.move[1]] = action.move[2];
+    return {
+      ...state,
+      matrix,
+      lastMove: action.move,
+      nextPlayer: togglePlayer(action.move[2]),
+      peerMove: action.type === GAME.PEER_MOVE ? action.move : state.peerMove,
+    };
+  };
+
   switch (action.type) {
-    case GAME.NEW_MOVE: {
-      const matrix = [...state.matrix];
-      // eslint-disable-next-line prefer-destructuring
-      matrix[action.move[0]][action.move[1]] = action.move[2];
-      return {
-        ...state,
-        matrix,
-        lastMove: action.move,
-        nextPlayer: togglePlayer(action.move[2]),
-      };
+    case GAME.NEW_MOVE:
+    case GAME.PEER_MOVE: {
+      return move();
     }
     case GAME.RESET_BOARD: {
       const matrix = [...state.matrix];

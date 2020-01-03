@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import * as PropTypes from 'prop-types';
+import { number } from 'prop-types';
 import { SVG } from '@svgdotjs/svg.js';
 import { isEqual } from 'lodash';
 import './style.css';
@@ -43,7 +44,8 @@ Banner.propTypes = {
 const Board = (props) => {
   const {
     dimension, matrix, sessionID, winningPath, players, nextPlayer, draw,
-    newMove, setWinningPath, setDraw, joinGame, connected, round, player, peerReady,
+    newMove, setWinningPath, setDraw, joinGame, connected, round, player,
+    peerReady, peerMove,
   } = props;
 
   const boardDataRef = useRef({ matrix, winningPath });
@@ -147,8 +149,26 @@ const Board = (props) => {
     }
   };
 
+  const checkWinOrDraw = useCallback((row, column) => {
+    if (isDraw()) {
+      setDraw(true);
+    } else {
+      const winningCells = checkWin(row, column);
+      if (winningCells) {
+        setWinningPath(winningCells);
+        boardDataRef.current.winningPath = winningCells;
+        winningCells.forEach(
+          (c) => {
+            drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
+              winningStrokeColor);
+          },
+        );
+      }
+    }
+  }, [players, setDraw, setWinningPath]);
+
   const clickHandler = (event) => {
-    if (!connected || !peerReady || draw || winningPath.length > 0) {
+    if (!connected || !peerReady || nextPlayer !== player || draw || winningPath.length > 0) {
       return;
     }
 
@@ -169,21 +189,23 @@ const Board = (props) => {
 
     newMove([row, column, nextPlayer]);
 
-    if (isDraw()) {
-      setDraw(true);
-    } else {
-      const winningCells = checkWin(row, column);
-      if (winningCells) {
-        setWinningPath(winningCells);
-        boardDataRef.current.winningPath = winningCells;
-        winningCells.forEach(
-          (c) => {
-            drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
-              winningStrokeColor);
-          },
-        );
-      }
-    }
+    checkWinOrDraw(row, column);
+
+    // if (isDraw()) {
+    //   setDraw(true);
+    // } else {
+    //   const winningCells = checkWin(row, column);
+    //   if (winningCells) {
+    //     setWinningPath(winningCells);
+    //     boardDataRef.current.winningPath = winningCells;
+    //     winningCells.forEach(
+    //       (c) => {
+    //         drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
+    //           winningStrokeColor);
+    //       },
+    //     );
+    //   }
+    // }
   };
 
   const refillBoard = useCallback(() => {
@@ -194,7 +216,8 @@ const Board = (props) => {
             (v) => isEqual([v[0], v[1]], [r, c]),
           );
           if (winningCell !== -1) {
-            drawSymbolInCell(r, c, players[column], winningColor, winningStrokeColor);
+            drawSymbolInCell(r, c, players[column], winningColor,
+              winningStrokeColor);
           } else {
             drawSymbolInCell(r, c, players[column]);
           }
@@ -304,16 +327,38 @@ const Board = (props) => {
     drawBoard();
   }, [sessionID, drawBoard, joinGame, connected, round]);
 
+  useEffect(() => {
+    console.log('Peer move received.', peerMove);
+    if (peerMove.length > 0) {
+      const [row, column] = peerMove;
+      const symbol = players[peerMove[2]];
+      // drawSymbolInCell(peerMove[0], peerMove[1], players[peerMove[2]]);
+
+      drawSymbolInCell(row, column, symbol);
+
+      checkWinOrDraw(row, column);
+    }
+  }, [peerMove, players, checkWinOrDraw]);
+
   return (
     <div className="board">
-      <Banner player={player} players={players} nextPlayer={nextPlayer} draw={draw} sessionID={sessionID} />
+      <Banner
+        player={player}
+        players={players}
+        nextPlayer={nextPlayer}
+        draw={draw}
+        sessionID={sessionID}
+      />
       <div className="grid-container" onMouseMove={mouseMoveHandler}>
         <div ref={canvasContainerElement} id="canvas-container" />
         {/* eslint-disable-next-line max-len */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
         <div
           ref={gridElement}
-          className={!connected || !peerReady || draw || winningPath.length > 0 ? 'locked' : ''}
+          className={!connected || !peerReady || nextPlayer !== player
+          || draw || winningPath.length > 0
+            ? 'locked'
+            : ''}
           id="grid"
           onClick={clickHandler}
         />
@@ -338,6 +383,7 @@ Board.propTypes = {
   draw: PropTypes.bool.isRequired,
   connected: PropTypes.bool.isRequired,
   peerReady: PropTypes.bool.isRequired,
+  peerMove: PropTypes.arrayOf(number).isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -351,6 +397,7 @@ const mapStateToProps = (state) => ({
   draw: state.game.draw,
   connected: state.game.connected,
   peerReady: state.game.peerReady,
+  peerMove: state.game.peerMove,
 });
 
 export default connect(mapStateToProps, actionCreators)(Board);
