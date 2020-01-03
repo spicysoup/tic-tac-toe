@@ -1,10 +1,9 @@
 let dimension;
 let matrix;
-let players;
 let axis;
 
 export const setGameState = (game) => {
-  ({ dimension, players, matrix } = game);
+  ({ dimension, matrix } = game);
   axis = new Array(dimension).fill(0);
 };
 
@@ -109,7 +108,7 @@ export const checkWin = (row, column) => {
   );
 
   for (const completePath of completePaths) {
-    for (const player of players) {
+    for (const player of [0, 1]) {
       if (completePath.map((v) => v[2]).every((w) => w === player)) {
         return completePath;
       }

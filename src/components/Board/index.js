@@ -184,7 +184,7 @@ const Board = (props) => {
         boardDataRef.current.winningPath = winningCells;
         winningCells.forEach(
           (c) => {
-            drawSymbolInCell(c[0], c[1], c[2], winningColor,
+            drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
               winningStrokeColor);
           },
         );
@@ -192,6 +192,7 @@ const Board = (props) => {
     }
   };
 
+  
   const refillBoard = useCallback(() => {
     boardDataRef.current.matrix.forEach((row, r) => {
       row.forEach((column, c) => {
@@ -207,7 +208,7 @@ const Board = (props) => {
         }
       });
     });
-  }, []);
+  }, [players]);
 
   const drawBoard = useCallback(() => {
     clearTimeout(boardDataRef.current.timeoutHandle);
