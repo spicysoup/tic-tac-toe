@@ -190,22 +190,6 @@ const Board = (props) => {
     newMove([row, column, nextPlayer]);
 
     checkWinOrDraw(row, column);
-
-    // if (isDraw()) {
-    //   setDraw(true);
-    // } else {
-    //   const winningCells = checkWin(row, column);
-    //   if (winningCells) {
-    //     setWinningPath(winningCells);
-    //     boardDataRef.current.winningPath = winningCells;
-    //     winningCells.forEach(
-    //       (c) => {
-    //         drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
-    //           winningStrokeColor);
-    //       },
-    //     );
-    //   }
-    // }
   };
 
   const refillBoard = useCallback(() => {
@@ -324,6 +308,7 @@ const Board = (props) => {
     if (connected && sessionID === 0) {
       joinGame();
     }
+    boardDataRef.current.winningPath = [];
     drawBoard();
   }, [sessionID, drawBoard, joinGame, connected, round]);
 
