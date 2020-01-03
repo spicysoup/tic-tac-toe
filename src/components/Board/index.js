@@ -163,12 +163,6 @@ const Board = (props) => {
       return;
     }
 
-    // const { nextPlayer: symbol } = props;
-    console.log('----------------------------');
-    console.log('Next player', nextPlayer);
-    console.log('Players', players);
-    console.log('----------------------------');
-
     const symbol = players[nextPlayer];
 
     drawSymbolInCell(row, column, symbol);
@@ -192,7 +186,6 @@ const Board = (props) => {
     }
   };
 
-  
   const refillBoard = useCallback(() => {
     boardDataRef.current.matrix.forEach((row, r) => {
       row.forEach((column, c) => {

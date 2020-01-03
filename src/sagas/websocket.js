@@ -27,7 +27,6 @@ function initWebsocket() {
     };
 
     ws.onmessage = (message) => {
-      console.log(message);
       try {
         const payload = JSON.parse(message.data);
         if (payload.type) {
@@ -56,6 +55,7 @@ function initWebsocket() {
 function saveSessionInfo({ sessionID, player }) {
   sessionStorage.setItem('sessionID', sessionID);
   sessionStorage.setItem('player', player);
+  savedSessionInfo = { sessionID, player };
 }
 
 function retrieveSessionInfo() {
@@ -69,8 +69,6 @@ export function* watchInboundWSMessages() {
   const channel = yield call(initWebsocket);
   while (true) {
     const action = yield take(channel);
-    console.log('==================================');
-    console.log(action);
     switch (action.type) {
       case GAME.GAME_JOINED: {
         const session = {
@@ -95,12 +93,12 @@ export function* watchInboundWSMessages() {
 export function* watchOutboundWSMessages() {
   while (true) {
     const action = yield take([GAME.JOIN_GAME, GAME.RESET_BOARD, GAME.NEW_MOVE]);
-    console.log(action);
 
-    if (action.type === GAME.JOIN_GAME) {
+    if (!savedSessionInfo) {
       savedSessionInfo = yield call(retrieveSessionInfo);
     }
 
+    console.log('Saved Session Info', savedSessionInfo);
     yield fork(sendMessage, { ...action, ...savedSessionInfo });
 
     // switch (action.type) {
