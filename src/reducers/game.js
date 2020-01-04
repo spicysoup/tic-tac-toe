@@ -48,16 +48,16 @@ const game = (state = initialState, action) => {
       return move();
     }
     case GAME.RESET_BOARD: {
-      const matrix = [...state.matrix];
-
-      for (let i = 0; i < state.dimension * state.dimension; i++) {
-        matrix[Math.floor(i / state.dimension)][i % state.dimension] = null;
-      }
+      // const matrix = [...state.matrix];
+      //
+      // for (let i = 0; i < state.dimension * state.dimension; i++) {
+      //   matrix[Math.floor(i / state.dimension)][i % state.dimension] = null;
+      // }
 
       return {
         ...state,
         round: state.round + 1,
-        matrix,
+        matrix: blankMatrix(state.dimension),
         draw: false,
         winningPath: [],
       };
@@ -99,6 +99,12 @@ const game = (state = initialState, action) => {
       return {
         ...state,
         peerReady: true,
+        round: state.round + 1,
+        dimension: initialDimension,
+        matrix: blankMatrix(initialDimension),
+        draw: false,
+        winningPath: [],
+        nextPlayer: 0,
       };
     }
     default:
