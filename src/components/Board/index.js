@@ -156,7 +156,7 @@ const Board = (props) => {
       const winningCells = checkWin(row, column);
       if (winningCells) {
         setWinningPath(winningCells);
-        boardDataRef.current.winningPath = winningCells;
+        // boardDataRef.current.winningPath = winningCells;
         winningCells.forEach(
           (c) => {
             drawSymbolInCell(c[0], c[1], players[c[2]], winningColor,
@@ -168,7 +168,8 @@ const Board = (props) => {
   }, [players, setDraw, setWinningPath]);
 
   const clickHandler = (event) => {
-    if (!connected || !peerReady || nextPlayer !== player || draw || winningPath.length > 0) {
+    if (!connected || !peerReady || nextPlayer !== player || draw
+      || winningPath.length > 0) {
       return;
     }
 
@@ -301,6 +302,11 @@ const Board = (props) => {
   }, [drawBoard]);
 
   useEffect(() => {
+    boardDataRef.current.matrix = matrix;
+    boardDataRef.current.winningPath = winningPath;
+  }, [matrix, winningPath]);
+
+  useEffect(() => {
     // if (sessionID === 0) {
     //   return;
     // }
@@ -308,7 +314,7 @@ const Board = (props) => {
     if (connected && sessionID === 0) {
       joinGame();
     }
-    boardDataRef.current.winningPath = [];
+    // boardDataRef.current.winningPath = [];
     drawBoard();
   }, [sessionID, drawBoard, joinGame, connected, round]);
 
@@ -335,7 +341,7 @@ const Board = (props) => {
         sessionID={sessionID}
       />
       <div className="grid-container" onMouseMove={mouseMoveHandler}>
-        <div ref={canvasContainerElement} id="canvas-container" />
+        <div ref={canvasContainerElement} id="canvas-container"/>
         {/* eslint-disable-next-line max-len */}
         {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
         <div

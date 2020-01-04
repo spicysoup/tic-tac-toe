@@ -19,8 +19,9 @@ export const newMove = (move) => ({
   move,
 });
 
-export const resetBoard = () => ({
+export const resetBoard = (player) => ({
   type: GAME.RESET_BOARD,
+  player,
 });
 
 export const setWinningPath = (winningPath) => ({
@@ -33,9 +34,10 @@ export const setDraw = (draw) => ({
   draw,
 });
 
-export const setDimension = (dimension) => ({
+export const setDimension = (dimension, player) => ({
   type: GAME.SET_DIMENSION,
   dimension,
+  player,
 });
 
 export const joinGame = () => ({

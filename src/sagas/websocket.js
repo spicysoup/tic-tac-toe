@@ -1,12 +1,14 @@
 import { eventChannel } from 'redux-saga';
 import {
-  call, fork, put, take,
+  call, fork, put, take, select,
 } from 'redux-saga/effects';
 import { GAME } from 'actions/types';
 import { gameJoined, serverConnected } from 'actions';
 
 let ws;
 let savedSessionInfo;
+
+export const getPlayer = (state) => state.game.player;
 
 function sendMessage(action) {
   ws.send(JSON.stringify(action));
@@ -96,14 +98,21 @@ export function* watchInboundWSMessages() {
 
 export function* watchOutboundWSMessages() {
   while (true) {
-    const action = yield take([GAME.JOIN_GAME, GAME.RESET_BOARD, GAME.NEW_MOVE]);
+    const action = yield take([
+      GAME.JOIN_GAME,
+      GAME.RESET_BOARD,
+      GAME.NEW_MOVE,
+      GAME.SET_DIMENSION]);
 
     if (!savedSessionInfo) {
       savedSessionInfo = yield call(retrieveSessionInfo);
     }
-
     console.log('Saved Session Info', savedSessionInfo);
-    yield fork(sendMessage, { ...action, ...savedSessionInfo });
+
+    const player = yield select(getPlayer);
+    if (!('player' in action) || action.player === player) {
+      yield fork(sendMessage, { ...action, ...savedSessionInfo });
+    }
 
     // switch (action.type) {
     //   case GAME.JOIN_GAME: {

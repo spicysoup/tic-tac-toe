@@ -75,11 +75,12 @@ const game = (state = initialState, action) => {
     case GAME.SET_DIMENSION:
       return {
         ...state,
-        sessionID: state.sessionID + 1,
+        round: state.round + 1,
         dimension: action.dimension,
         matrix: blankMatrix(action.dimension),
         draw: false,
         winningPath: [],
+        peerMove: [],
       };
     case GAME.CONNECTED:
       return {

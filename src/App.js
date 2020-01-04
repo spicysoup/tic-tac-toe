@@ -12,7 +12,7 @@ import Settings from 'components/Settings';
 import logo from './tic-tac-toe-svgrepo-com.svg';
 
 function App(props) {
-  const { dimension, resetBoard } = props;
+  const { dimension, resetBoard, player } = props;
 
   const { location: { pathname } } = props;
 
@@ -34,7 +34,7 @@ function App(props) {
             <div
               role="link"
               className="App-link"
-              onClick={resetBoard}
+              onClick={() => resetBoard(player)}
             >
               Reset
             </div>
@@ -61,10 +61,12 @@ App.propTypes = {
   dimension: PropTypes.number.isRequired,
   resetBoard: PropTypes.func.isRequired,
   location: PropTypes.instanceOf(Object).isRequired,
+  player: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   dimension: state.game.dimension,
+  player: state.game.player,
 });
 
 export default withRouter(connect(mapStateToProps, actionCreators)(App));

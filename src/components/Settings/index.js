@@ -52,9 +52,9 @@ Spinner.propTypes = {
 };
 
 const Settings = (props) => {
-  const { dimension, setDimension } = props;
+  const { dimension, setDimension, player } = props;
   const onChangeDimension = (number) => {
-    setDimension(number);
+    setDimension(number, player);
   };
   return (
     <div className="settings">
@@ -69,10 +69,12 @@ const Settings = (props) => {
 Settings.propTypes = {
   dimension: PropTypes.number.isRequired,
   setDimension: PropTypes.func.isRequired,
+  player: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   dimension: state.game.dimension,
+  player: state.game.player,
 });
 
 export default connect(mapStateToProps, actionCreators)(Settings);
