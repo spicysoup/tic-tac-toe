@@ -16,7 +16,7 @@ function sendMessage(action) {
 
 function initWebsocket() {
   return eventChannel((emitter) => {
-    ws = new WebSocket('wss://waratah.knach.us:8443/');
+    ws = new WebSocket(`wss://${process.env.REACT_APP_GAME_SERVER_HOST}:${process.env.REACT_APP_GAME_SERVER_PORT}/`);
 
     ws.onopen = () => {
       console.log('Connection to server opened.');
