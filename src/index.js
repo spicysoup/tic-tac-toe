@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { applyMiddleware, compose, createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 import rootSaga from 'sagas';
 import gameMiddleware from 'middlewares/game';
@@ -16,19 +17,17 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(
   reducers,
-  compose(applyMiddleware(sagaMiddleware, gameMiddleware),
-    // eslint-disable-next-line no-underscore-dangle
-    window.__REDUX_DEVTOOLS_EXTENSION__
-    // eslint-disable-next-line no-underscore-dangle
-    && window.__REDUX_DEVTOOLS_EXTENSION__()),
-);
+  composeWithDevTools(applyMiddleware(sagaMiddleware, gameMiddleware),
+  ));
 
 sagaMiddleware.run(rootSaga);
+
+console.log = () => {};
 
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <App />
+      <App/>
     </Router>
   </Provider>,
   document.querySelector('#root'),
