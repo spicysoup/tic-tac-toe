@@ -38,9 +38,6 @@ function initWebsocket() {
         if (payload.type) {
           emitter(payload);
         }
-        // if (payload.type === GAME.GAME_JOINED) {
-        //   emitter(payload);
-        // }
       } catch (e) {
         console.error(e);
       }
@@ -113,17 +110,5 @@ export function* watchOutboundWSMessages() {
     if (!('player' in action) || action.player === player) {
       yield fork(sendMessage, { ...action, ...savedSessionInfo });
     }
-
-    // switch (action.type) {
-    //   case GAME.JOIN_GAME: {
-    //     savedSessionInfo = yield call(retrieveSessionInfo);
-    //     yield fork(joinGame, { ...action, ...savedSessionInfo });
-    //     break;
-    //   }
-    //   case GAME.NEW_MOVE:
-    //     yield fork(sendNewMove, { ...action, ...savedSessionInfo });
-    //     break;
-    //   default:
-    // }
   }
 }

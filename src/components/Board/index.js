@@ -8,38 +8,7 @@ import './style.css';
 import { Layer, Stage } from 'konva';
 import * as actionCreators from 'actions';
 import { checkWin, isDraw } from 'libs/gameKeeper';
-
-const Banner = (props) => {
-  const {
-    players, player, nextPlayer, draw, sessionID,
-  } = props;
-  return (
-    <div>
-      <div className="info">Session {sessionID} - Player {players[player]}</div>
-      <div className="banner">
-        <div className={nextPlayer === 0
-          ? 'active-player'
-          : ''}
-        >{players[0]}
-        </div>
-        <div className={draw ? 'draw active' : 'draw'}>DRAW</div>
-        <div className={nextPlayer === 1
-          ? 'active-player'
-          : ''}
-        >{players[1]}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-Banner.propTypes = {
-  nextPlayer: PropTypes.number.isRequired,
-  players: PropTypes.arrayOf(PropTypes.string).isRequired,
-  player: PropTypes.number.isRequired,
-  draw: PropTypes.bool.isRequired,
-  sessionID: PropTypes.number.isRequired,
-};
+import { Banner } from 'components/Banner';
 
 const Board = (props) => {
   const {
@@ -232,9 +201,7 @@ const Board = (props) => {
     banner.style.fontSize = `${Math.floor(width / 15)}px`;
 
     gridElement.current.style.left = `${(clientWidth - width) / 2}px`;
-    // gridElement.current.style.width = `${width}px`;
-    // canvasContainerElement.current.style.left = `${(clientWidth - width)
-    // / 2}px`;
+
     canvasContainerElement.current.style.width = `${width}px`;
 
     svg = SVG().addTo('#grid').size(width, height);
@@ -307,14 +274,10 @@ const Board = (props) => {
   }, [matrix, winningPath]);
 
   useEffect(() => {
-    // if (sessionID === 0) {
-    //   return;
-    // }
     console.log(`Session [${sessionID}] round [${round}]`);
     if (connected && sessionID === 0) {
       joinGame();
     }
-    // boardDataRef.current.winningPath = [];
     drawBoard();
   }, [sessionID, drawBoard, joinGame, connected, round]);
 
@@ -323,7 +286,6 @@ const Board = (props) => {
     if (peerMove.length > 0) {
       const [row, column] = peerMove;
       const symbol = players[peerMove[2]];
-      // drawSymbolInCell(peerMove[0], peerMove[1], players[peerMove[2]]);
 
       drawSymbolInCell(row, column, symbol);
 
@@ -339,6 +301,8 @@ const Board = (props) => {
         nextPlayer={nextPlayer}
         draw={draw}
         sessionID={sessionID}
+        peerReady={peerReady}
+        winningPath={winningPath}
       />
       <div className="grid-container" onMouseMove={mouseMoveHandler}>
         <div ref={canvasContainerElement} id="canvas-container"/>

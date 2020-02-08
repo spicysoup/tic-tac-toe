@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+
+.banner-pane {
+  .info {
+    margin-top: 0.3em;
+    font-size: 1.5em;
+  }
+
+  .banner {
+    position: static;
+    display: flex;
+    margin: 0.1em auto 0.5em;
+    justify-content: space-between;
+    font-size: 2.5em;
+    font-weight: bold;
+    background-color: rgba(221, 227, 225, 0.3);
+    border: 2px solid rgba(27,31,35,.70);
+
+    div {
+      padding: 0 0.5em;
+    }
+
+    div.active-player {
+      color: white;
+      background-color: cadetblue;
+      padding: 0 0.5em;
+    }
+
+    > div:first-child {
+      border-right: 2px solid rgba(27,31,35,.70);
+    }
+
+    > div:last-child {
+      border-left: 2px solid rgba(27,31,35,.70);
+    }
+
+    .info {
+      display: flex;
+      font-family: 'Roboto Slab', serif;
+      height: 100%;
+      margin: auto;
+
+      .text {
+        font-size: 0.4em;
+        margin: auto; /* Important */
+        text-align: center;
+      }
+
+      .text.hide {
+        display: none;
+      }
+
+      .draw {
+        display: none;
+        //width: calc(1em * 4);
+        color: #80321B;
+        font-size: 0.4em;
+        font-weight: bold;
+        animation: blinker 1s linear 3;
+        text-align: center;
+      }
+
+      .draw.active {
+        display: block;
+      }
+    }
+
+    @keyframes blinker {
+      50% {
+        opacity: 0;
+      }
+    }
+  }
+}
