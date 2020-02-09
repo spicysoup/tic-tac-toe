@@ -11,7 +11,11 @@ RUN npm run build
 # production environment
 FROM nginx:1.17.8-alpine
 COPY --from=build /app/build /usr/share/nginx/html
-RUN rm /etc/nginx/conf.d/default.conf
-COPY nginx/nginx.conf /etc/nginx/conf.d
-EXPOSE 80
+COPY etc/ssl-cert/fullchain.pem /etc/letsencrypt/live/waratah.knach.us/
+COPY etc/ssl-cert/privkey.pem /etc/letsencrypt/live/waratah.knach.us/
+COPY etc/nginx/nginx.conf /etc/nginx/
+COPY etc/nginx/sites-enabled/* /etc/nginx/sites-enabled/
+COPY etc/nginx/sites-available/* /etc/nginx/sites-available/
+
+EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]

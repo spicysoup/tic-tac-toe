@@ -54,6 +54,7 @@ const game = (state = initialState, action) => {
         matrix: blankMatrix(state.dimension),
         draw: false,
         winningPath: [],
+        peerMove: [],
       };
     }
     case GAME.SET_WINNING_PATH:
