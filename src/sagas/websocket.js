@@ -1,7 +1,5 @@
 import { eventChannel } from 'redux-saga';
-import {
-  call, fork, put, take, select,
-} from 'redux-saga/effects';
+import { call, fork, put, select, take } from 'redux-saga/effects';
 import { GAME } from 'actions/types';
 import { gameJoined, serverConnected } from 'actions';
 
@@ -10,13 +8,15 @@ let savedSessionInfo;
 
 export const getPlayer = (state) => state.game.player;
 
+const protocol = () => process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
+
 function sendMessage(action) {
   ws.send(JSON.stringify(action));
 }
 
 function initWebsocket() {
   return eventChannel((emitter) => {
-    ws = new WebSocket(`wss://${process.env.REACT_APP_GAME_SERVER_HOST}:${process.env.REACT_APP_GAME_SERVER_PORT}/`);
+    ws = new WebSocket(`${protocol()}://${process.env.REACT_APP_GAME_SERVER_HOST}:${process.env.REACT_APP_GAME_SERVER_PORT}/`);
 
     ws.onopen = () => {
       console.log('Connection to server opened.');
